@@ -35,7 +35,7 @@ export async function Hero() {
                                 BEM-VINDOS
                             </h1>
                             <p className="text-xl md:text-2xl mb-8 font-light text-gray-100 max-w-2xl drop-shadow-md">
-                                "Restaurar todas as coisas em Cristo". Uma comunidade acolhedora esperando por você e sua família.
+                                &ldquo;Restaurar todas as coisas em Cristo&rdquo;. Uma comunidade acolhedora esperando por você e sua família.
                             </p>
                             <div className="flex flex-wrap gap-4">
                                 <Link
@@ -58,54 +58,68 @@ export async function Hero() {
 
             {/* Floating Info Cards */}
             <div className="relative z-30 container mx-auto px-4 -mt-24 mb-16">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-8 rounded-sm shadow-xl border-l-4 border-secondary transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                        <div className="flex items-start gap-4">
-                            <div className="bg-accent p-3 rounded-full text-secondary shrink-0">
-                                <Clock size={28} />
+                <div className="grid grid-cols-3 gap-2 md:gap-6">
+                    <div className="min-w-0 rounded-sm border-l-[3px] border-secondary bg-white p-3 shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:border-l-4 md:p-8">
+                        <div className="flex flex-col items-center gap-3 text-center md:flex-row md:items-start md:gap-4 md:text-left">
+                            <div className="bg-accent p-2.5 rounded-full text-secondary shrink-0 md:p-3">
+                                <Clock className="h-5 w-5 md:h-7 md:w-7" />
                             </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-primary mb-2">Missas</h3>
-                                <ul className="text-gray-600 text-sm space-y-1.5">
-                                    <li className="flex justify-between w-full gap-8"><span>Quarta / Quinta:</span> <span className="font-medium text-gray-900">15h / 20h</span></li>
-                                    <li className="flex justify-between w-full gap-8"><span>Sábado:</span> <span className="font-medium text-gray-900">20h00</span></li>
-                                    <li className="flex justify-between w-full gap-8"><span>Domingo:</span> <span className="font-medium text-gray-900">09h15</span></li>
+                            <div className="min-w-0">
+                                <h3 className="mb-2 text-sm font-bold text-primary md:text-xl">Missas</h3>
+                                <ul className="space-y-1 text-[10px] leading-4 text-gray-600 md:text-sm md:space-y-1.5">
+                                    <li className="md:hidden">Qua/Qui: 15h / 20h</li>
+                                    <li className="md:hidden">Sab: 20h00</li>
+                                    <li className="md:hidden">Dom: 09h15</li>
+                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Quarta / Quinta:</span> <span className="font-medium text-gray-900">15h / 20h</span></li>
+                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Sábado:</span> <span className="font-medium text-gray-900">20h00</span></li>
+                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Domingo:</span> <span className="font-medium text-gray-900">09h15</span></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-8 rounded-sm shadow-xl border-l-4 border-primary transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                        <div className="flex items-start gap-4">
-                            <div className="bg-accent p-3 rounded-sm text-secondary shrink-0">
-                                <MapPin size={28} />
+                    <div className="min-w-0 rounded-sm border-l-[3px] border-primary bg-white p-3 shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:border-l-4 md:p-8">
+                        <div className="flex flex-col items-center gap-3 text-center md:flex-row md:items-start md:gap-4 md:text-left">
+                            <div className="bg-accent p-2.5 rounded-sm text-secondary shrink-0 md:p-3">
+                                <MapPin className="h-5 w-5 md:h-7 md:w-7" />
                             </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-primary mb-2">Localização</h3>
-                                <p className="text-gray-600 text-sm mb-3 leading-relaxed">
+                            <div className="min-w-0">
+                                <h3 className="mb-2 text-sm font-bold text-primary md:text-xl">Localização</h3>
+                                <p className="mb-2 text-[10px] leading-4 text-gray-600 md:hidden">
+                                    Jd. Santa Rosa<br />
+                                    Campinas - SP
+                                </p>
+                                <p className="hidden text-sm leading-relaxed text-gray-600 md:mb-3 md:block">
                                     R. Eudes Batista Ribeiro, S/N<br />
                                     Jardim Santa Rosa<br />
                                     Campinas – SP, 13058-712
                                 </p>
-                                <Link href="/contato" className="text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1 transition-colors">
-                                    Ver no mapa <ArrowRight size={14} />
+                                <Link href="/contato" className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary transition-colors hover:underline md:text-sm">
+                                    <span className="md:hidden">Mapa</span>
+                                    <span className="hidden md:inline">Ver no mapa</span>
+                                    <ArrowRight size={14} />
                                 </Link>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-8 rounded-sm shadow-xl border-l-4 border-secondary transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                        <div className="flex items-start gap-4">
-                            <div className="bg-accent p-3 rounded-sm text-secondary shrink-0">
-                                <Calendar size={28} />
+                    <div className="min-w-0 rounded-sm border-l-[3px] border-secondary bg-white p-3 shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:border-l-4 md:p-8">
+                        <div className="flex flex-col items-center gap-3 text-center md:flex-row md:items-start md:gap-4 md:text-left">
+                            <div className="bg-accent p-2.5 rounded-sm text-secondary shrink-0 md:p-3">
+                                <Calendar className="h-5 w-5 md:h-7 md:w-7" />
                             </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-primary mb-2">Secretaria</h3>
-                                <p className="text-gray-600 text-sm mb-1">
+                            <div className="min-w-0">
+                                <h3 className="mb-2 text-sm font-bold text-primary md:text-xl">Secretaria</h3>
+                                <p className="mb-1 text-[10px] leading-4 text-gray-600 md:hidden">
+                                    Seg-Sex: 08h-12h<br />
+                                    13h-17h<br />
+                                    Sab: 08h-12h
+                                </p>
+                                <p className="hidden text-sm text-gray-600 md:mb-1 md:block">
                                     <strong>Seg-Sex:</strong> 08h-12h, 13h-17h<br />
                                     <strong>Sábado:</strong> 08h-12h
                                 </p>
-                                <p className="text-gray-900 font-medium text-sm mt-2 flex items-center gap-2">
+                                <p className="mt-2 flex items-center justify-center gap-2 text-[10px] font-medium text-gray-900 md:justify-start md:text-sm">
                                     (19) 3261-2099
                                 </p>
                             </div>

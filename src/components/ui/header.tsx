@@ -14,14 +14,34 @@ const navigation = [
     { name: "Comunidades", href: "/comunidades" },
     { name: "Avisos", href: "/avisos" },
     { name: "Agenda", href: "/agenda" },
+    { name: "Galeria", href: "/galeria" },
     { name: "Festa Junina", href: "/festa-junina" },
 ];
 
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const brand = (
+        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
+            <div className="flex items-center gap-3">
+                <div className="relative h-12 w-12">
+                    <Image
+                        src="/logo.png"
+                        alt="Brasão da Paróquia São Pio X"
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-xl font-bold text-white leading-none tracking-tight">Paróquia São Pio X</span>
+                    <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Campinas / SP</span>
+                </div>
+            </div>
+        </Link>
+    );
 
     return (
-        <header className="bg-primary sticky top-0 z-50 shadow-md font-sans text-white">
+        <header className="sticky top-0 z-50 isolate w-full bg-primary shadow-md font-sans text-white before:absolute before:inset-0 before:-z-10 before:bg-primary before:content-['']">
             {/* Top Bar - Clean and Minimal */}
             <div className="bg-primary border-b border-white/10 py-2 text-xs text-gray-300 hidden md:block">
                 <div className="container mx-auto px-4 flex justify-between items-center">
@@ -37,27 +57,10 @@ export function Header() {
             </div>
 
             {/* Main Header */}
-            <nav className="container mx-auto px-4 py-4" aria-label="Global">
-                <div className="flex items-center justify-between">
-                    <div className="flex lg:flex-1">
-                        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
-                            {/* Logo */}
-                            <div className="flex items-center gap-3">
-                                <div className="relative h-12 w-12">
-                                    <Image
-                                        src="/logo.png"
-                                        alt="Brasão da Paróquia São Pio X"
-                                        fill
-                                        className="object-contain"
-                                        priority
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-bold text-white leading-none tracking-tight">Paróquia São Pio X</span>
-                                    <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Campinas / SP</span>
-                                </div>
-                            </div>
-                        </Link>
+            <nav className="container mx-auto bg-primary px-4 py-4" aria-label="Global">
+                <div className="flex items-center justify-between lg:hidden">
+                    <div className="flex">
+                        {brand}
                     </div>
                     <div className="flex lg:hidden">
                         <button
@@ -69,17 +72,29 @@ export function Header() {
                             {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
                         </button>
                     </div>
-                    <div className="hidden lg:flex lg:gap-x-6 items-center">
-                        {navigation.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className="text-sm font-medium text-white hover:text-secondary transition-colors"
-                                style={{ fontSize: '13px' }}
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
+                </div>
+
+                <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-8">
+                    <div className="justify-self-start">
+                        {brand}
+                    </div>
+
+                    <div className="justify-self-center">
+                        <div className="flex items-center justify-center gap-7 xl:gap-8">
+                            {navigation.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="text-sm font-medium text-white hover:text-secondary transition-colors whitespace-nowrap"
+                                    style={{ fontSize: '13px' }}
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="justify-self-end">
                         <Link
                             href="/contato"
                             className="bg-secondary text-white px-5 py-2 rounded-sm text-sm font-bold hover:bg-white hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md"

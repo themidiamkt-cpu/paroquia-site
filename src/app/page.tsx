@@ -2,9 +2,9 @@
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { Hero } from "@/components/home/Hero";
-import { QuickAccess } from "@/components/home/QuickAccess";
 import { Notices } from "@/components/home/Notices";
 import { OnlineServices } from "@/components/home/OnlineServices";
+import { RecentGallery } from "@/components/home/RecentGallery";
 import { PriestWord } from "@/components/home/PriestWord";
 import { FeaturedPastorals } from "@/components/home/FeaturedPastorals";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
@@ -24,6 +24,7 @@ export default function Home() {
         <Notices />
         <ChapelReform />
         <OnlineServices />
+        <RecentGallery />
         <PriestWord />
         <Calendar />
         <FeaturedPastorals />

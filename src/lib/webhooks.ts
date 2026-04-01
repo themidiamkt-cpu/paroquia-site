@@ -1,10 +1,7 @@
 
-export async function sendToWebhook(formName: string, data: any) {
-    const webhookBaseUrl = "https://automacao2.themidiamarketing.com.br/webhook";
-    const url = `${webhookBaseUrl}/${formName}`;
-
+export async function sendToWebhook(formName: string, data: Record<string, string>) {
     try {
-        const response = await fetch(url, {
+        const response = await fetch(`/api/forms/${encodeURIComponent(formName)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -12,15 +9,23 @@ export async function sendToWebhook(formName: string, data: any) {
             body: JSON.stringify(data),
         });
 
+        const result = await response.json().catch(() => null);
+
         if (!response.ok) {
-            console.error(`Failed to send to webhook ${formName}:`, response.statusText);
-            // We might want to throw here or return success: false
-            return { success: false, error: response.statusText };
+            const errorMessage = result?.error || `Erro ${response.status}`;
+            console.error(`Failed to submit form ${formName}:`, errorMessage);
+            return { success: false, error: errorMessage };
         }
 
-        return { success: true };
+        if (!result?.success) {
+            const errorMessage = result?.error || "Falha ao enviar formulário.";
+            console.error(`Form submission returned failure for ${formName}:`, errorMessage);
+            return { success: false, error: errorMessage };
+        }
+
+        return { success: true, warning: result.warning };
     } catch (error) {
-        console.error(`Error sending to webhook ${formName}:`, error);
-        return { success: false, error: error };
+        console.error(`Error submitting form ${formName}:`, error);
+        return { success: false, error: "Não foi possível enviar sua solicitação no momento." };
     }
 }

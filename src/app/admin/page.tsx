@@ -29,9 +29,9 @@ export default async function AdminDashboard() {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium text-gray-500 mb-1">Notícias</div>
-                        <div className="text-3xl font-bold text-secondary">{stats.newsCount}</div>
+                        <div className="text-3xl font-bold text-primary">{stats.newsCount}</div>
                     </div>
-                    <div className="h-12 w-12 bg-red-50 rounded-full flex items-center justify-center text-secondary">
+                    <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center text-primary">
                         <FileText size={24} />
                     </div>
                 </div>

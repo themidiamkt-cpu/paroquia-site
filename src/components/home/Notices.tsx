@@ -18,27 +18,27 @@ export async function Notices() {
                     <Bell className="text-secondary" /> Avisos Paroquiais
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6">
                     {notices.map((notice) => (
                         <div
                             key={notice.id}
-                            className={`bg-white p-6 rounded-sm shadow-sm border-l-4 ${notice.is_urgent ? 'border-red-500' : 'border-secondary'} hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+                            className={`rounded-sm border-l-4 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-6 ${notice.is_urgent ? "border-red-500" : "border-secondary"}`}
                         >
                             <div className="flex justify-between items-center mb-2">
-                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                                <div className="text-[11px] font-bold uppercase tracking-wide text-gray-400 md:text-xs">
                                     {new Date(notice.created_at).toLocaleDateString()}
                                 </div>
                                 {notice.is_urgent && (
-                                    <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-bold">URGENTE</span>
+                                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800 md:text-xs">URGENTE</span>
                                 )}
                             </div>
-                            <h3 className="text-lg font-bold text-primary mb-3 line-clamp-2">
+                            <h3 className="mb-2 line-clamp-2 text-base font-bold text-primary md:mb-3 md:text-lg">
                                 {notice.title}
                             </h3>
-                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">{notice.message}</p>
+                            <p className="mb-3 line-clamp-4 text-xs text-gray-600 md:mb-4 md:line-clamp-3 md:text-sm">{notice.message}</p>
                             <Link
                                 href={`/avisos/${notice.id}`}
-                                className="text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-secondary hover:underline md:text-sm"
                             >
                                 Saiba mais <ArrowRight size={14} />
                             </Link>

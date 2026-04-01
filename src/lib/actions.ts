@@ -489,6 +489,19 @@ export async function deleteBanner(id: number) {
 
 // --- GALLERIES ---
 
+interface GalleryActionError {
+    code?: string;
+    message?: string;
+}
+
+function getGalleryErrorMessage(error: GalleryActionError) {
+    if (error.code === "PGRST205") {
+        return "A estrutura da galeria ainda nao existe no Supabase. Execute o arquivo GALLERY_FEATURE_SCHEMA.sql no banco.";
+    }
+
+    return error.message || "Ocorreu um erro ao processar a galeria.";
+}
+
 export async function getGalleries() {
     const { data, error } = await supabaseAdmin
         .from("galleries")
@@ -502,40 +515,121 @@ export async function getGalleries() {
     return data;
 }
 
+export async function getGallerySetupStatus() {
+    const [{ error: galleriesError }, { error: imagesError }] = await Promise.all([
+        supabaseAdmin.from("galleries").select("id", { head: true, count: "exact" }),
+        supabaseAdmin.from("gallery_images").select("id", { head: true, count: "exact" }),
+    ]);
+
+    const error = galleriesError || imagesError;
+
+    if (error) {
+        return {
+            ready: false,
+            message: getGalleryErrorMessage(error),
+        };
+    }
+
+    return {
+        ready: true,
+        message: null,
+    };
+}
+
+export async function getGalleryById(id: number) {
+    const { data, error } = await supabaseAdmin
+        .from("galleries")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+        return null;
+    }
+
+    return data;
+}
+
 export async function createGallery(formData: FormData) {
     const title = formData.get("title") as string;
     const event_date = formData.get("event_date") as string;
     const description = formData.get("description") as string;
-    const cover_image = formData.get("cover_image") as string;
+    const cover_image = formData.get("cover_image") as string | null;
 
-    const { error } = await supabaseAdmin
+    const payload: {
+        title: string;
+        event_date: string;
+        description: string;
+        cover_image?: string;
+    } = {
+        title,
+        event_date,
+        description,
+    };
+
+    if (cover_image) {
+        payload.cover_image = cover_image;
+    }
+
+    const { data, error } = await supabaseAdmin
         .from("galleries")
-        .insert([{ title, event_date, description, cover_image }]);
+        .insert([payload])
+        .select("*")
+        .single();
 
-    if (error) console.error("Error creating gallery:", error);
+    if (error) {
+        console.error("Error creating gallery:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
     revalidatePath("/admin/galeria");
     revalidatePath("/galeria");
+    return data;
 }
 
 export async function updateGallery(id: number, formData: FormData) {
     const title = formData.get("title") as string;
     const event_date = formData.get("event_date") as string;
     const description = formData.get("description") as string;
-    const cover_image = formData.get("cover_image") as string;
+    const cover_image = formData.get("cover_image");
+
+    const payload: {
+        title: string;
+        event_date: string;
+        description: string;
+        cover_image?: string;
+    } = {
+        title,
+        event_date,
+        description,
+    };
+
+    if (typeof cover_image === "string") {
+        payload.cover_image = cover_image;
+    }
 
     const { error } = await supabaseAdmin
         .from("galleries")
-        .update({ title, event_date, description, cover_image })
+        .update(payload)
         .eq("id", id);
 
-    if (error) console.error("Error updating gallery:", error);
+    if (error) {
+        console.error("Error updating gallery:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
     revalidatePath("/admin/galeria");
     revalidatePath("/galeria");
+    revalidatePath(`/galeria/${id}`);
 }
 
 export async function deleteGallery(id: number) {
     const { error } = await supabaseAdmin.from("galleries").delete().eq("id", id);
-    if (error) console.error("Error deleting gallery:", error);
+    if (error) {
+        console.error("Error deleting gallery:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
     revalidatePath("/admin/galeria");
     revalidatePath("/galeria");
 }
@@ -622,22 +716,131 @@ export async function createGalleryImage(formData: FormData) {
         .from("gallery_images")
         .insert([{ gallery_id, image_url, display_order }]);
 
-    if (error) console.error("Error creating gallery image:", error);
+    if (error) {
+        console.error("Error creating gallery image:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
     revalidatePath("/admin/galeria");
     revalidatePath(`/admin/galeria/${gallery_id}`);
+    revalidatePath("/galeria");
+    revalidatePath(`/galeria/${gallery_id}`);
+}
+
+export async function createGalleryImages(formData: FormData) {
+    const gallery_id = Number(formData.get("gallery_id"));
+    const image_urls_raw = formData.get("image_urls") as string;
+
+    if (!gallery_id || !image_urls_raw) {
+        throw new Error("Dados da galeria incompletos.");
+    }
+
+    const image_urls = JSON.parse(image_urls_raw) as string[];
+
+    if (!Array.isArray(image_urls) || image_urls.length === 0) {
+        throw new Error("Nenhuma imagem recebida.");
+    }
+
+    const { data: existingImages } = await supabaseAdmin
+        .from("gallery_images")
+        .select("display_order")
+        .eq("gallery_id", gallery_id)
+        .order("display_order", { ascending: false })
+        .limit(1);
+
+    const startOrder = existingImages?.[0]?.display_order ?? 0;
+    const rows = image_urls.map((image_url, index) => ({
+        gallery_id,
+        image_url,
+        display_order: startOrder + index + 1,
+    }));
+
+    const { error } = await supabaseAdmin
+        .from("gallery_images")
+        .insert(rows);
+
+    if (error) {
+        console.error("Error creating gallery images:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
+    const { data: gallery } = await supabaseAdmin
+        .from("galleries")
+        .select("cover_image")
+        .eq("id", gallery_id)
+        .single();
+
+    if (!gallery?.cover_image && rows[0]?.image_url) {
+        await supabaseAdmin
+            .from("galleries")
+            .update({ cover_image: rows[0].image_url })
+            .eq("id", gallery_id);
+    }
+
+    revalidatePath("/admin/galeria");
+    revalidatePath(`/admin/galeria/${gallery_id}`);
+    revalidatePath("/galeria");
+    revalidatePath(`/galeria/${gallery_id}`);
+}
+
+export async function setGalleryCover(galleryId: number, imageUrl: string) {
+    const { error } = await supabaseAdmin
+        .from("galleries")
+        .update({ cover_image: imageUrl })
+        .eq("id", galleryId);
+
+    if (error) {
+        console.error("Error updating gallery cover:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+
+    revalidatePath("/admin/galeria");
+    revalidatePath(`/admin/galeria/${galleryId}`);
+    revalidatePath("/galeria");
+    revalidatePath(`/galeria/${galleryId}`);
 }
 
 export async function deleteGalleryImage(id: number) {
     // First get the gallery id to revalidate
-    const { data: img } = await supabaseAdmin.from("gallery_images").select("gallery_id").eq("id", id).single();
+    const { data: img } = await supabaseAdmin
+        .from("gallery_images")
+        .select("gallery_id, image_url")
+        .eq("id", id)
+        .single();
 
     const { error } = await supabaseAdmin.from("gallery_images").delete().eq("id", id);
-    if (error) console.error("Error deleting gallery image:", error);
+    if (error) {
+        console.error("Error deleting gallery image:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
 
     if (img) {
+        const { data: gallery } = await supabaseAdmin
+            .from("galleries")
+            .select("cover_image")
+            .eq("id", img.gallery_id)
+            .single();
+
+        if (gallery?.cover_image === img.image_url) {
+            const { data: nextImage } = await supabaseAdmin
+                .from("gallery_images")
+                .select("image_url")
+                .eq("gallery_id", img.gallery_id)
+                .order("display_order", { ascending: true })
+                .limit(1)
+                .maybeSingle();
+
+            await supabaseAdmin
+                .from("galleries")
+                .update({ cover_image: nextImage?.image_url || null })
+                .eq("id", img.gallery_id);
+        }
+
         revalidatePath(`/admin/galeria/${img.gallery_id}`);
+        revalidatePath(`/galeria/${img.gallery_id}`);
     }
     revalidatePath("/admin/galeria");
+    revalidatePath("/galeria");
 }
 
 // --- FORM SUBMISSIONS ---
@@ -653,6 +856,21 @@ export async function getFormSubmissions() {
         return [];
     }
     return data;
+}
+
+export async function deleteFormSubmission(id: number) {
+    const { error } = await supabaseAdmin
+        .from("form_submissions")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error("Error deleting form submission:", error);
+        throw error;
+    }
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/formularios");
 }
 
 // --- USERS (AUTH) ---
@@ -728,7 +946,43 @@ export async function updateGalleryImageOrder(id: number, order: number) {
     const { data: img } = await supabaseAdmin.from("gallery_images").select("gallery_id").eq("id", id).single();
     if (img) {
         revalidatePath(`/admin/galeria/${img.gallery_id}`);
+        revalidatePath(`/galeria/${img.gallery_id}`);
     }
+
+    if (error) {
+        console.error("Error updating gallery image order:", error);
+        throw new Error(getGalleryErrorMessage(error));
+    }
+}
+
+export async function reorderGalleryImages(galleryId: number, orderedIds: number[]) {
+    if (!galleryId || !Array.isArray(orderedIds) || orderedIds.length === 0) {
+        throw new Error("Ordem de imagens invalida.");
+    }
+
+    const updates = await Promise.all(
+        orderedIds.map(async (id, index) => {
+            const { error } = await supabaseAdmin
+                .from("gallery_images")
+                .update({ display_order: index + 1 })
+                .eq("id", id)
+                .eq("gallery_id", galleryId);
+
+            return { id, error };
+        })
+    );
+
+    const failedUpdate = updates.find((update) => update.error);
+
+    if (failedUpdate?.error) {
+        console.error("Error reordering gallery images:", failedUpdate.error);
+        throw new Error(getGalleryErrorMessage(failedUpdate.error));
+    }
+
+    revalidatePath("/admin/galeria");
+    revalidatePath(`/admin/galeria/${galleryId}`);
+    revalidatePath("/galeria");
+    revalidatePath(`/galeria/${galleryId}`);
 }
 
 export async function uploadImage(formData: FormData) {
@@ -939,23 +1193,77 @@ export async function sendParticipationData(data: {
     coordinatorName?: string;
     coordinatorContact?: string;
 }) {
+    let submissionId: number | null = null;
+    let savedToDatabase = false;
+    let deliveredToWebhook = false;
+
     try {
+        const normalizedData = Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [
+                key,
+                typeof value === "string" ? value.trim() : value == null ? "" : String(value),
+            ]),
+        );
+
+        const { data: insertedSubmission, error: insertError } = await supabaseAdmin
+            .from("form_submissions")
+            .insert([{ form_type: "pastorais", data: normalizedData, status: "new" }])
+            .select("id")
+            .single();
+
+        if (insertError) {
+            console.error("Error saving participation form submission:", insertError);
+        } else {
+            submissionId = insertedSubmission.id;
+            savedToDatabase = true;
+        }
+
         const response = await fetch("https://automacao2.themidiamarketing.com.br/webhook/pastorais", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify(normalizedData),
         });
 
         if (!response.ok) {
-            throw new Error(`Webhook error: ${response.statusText}`);
+            throw new Error(`Webhook error: ${response.status}`);
         }
 
+        deliveredToWebhook = true;
+
+        revalidatePath("/admin");
+        revalidatePath("/admin/formularios");
+
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error sending participation data:", error);
-        return { success: false, error: error.message };
+
+        if (savedToDatabase && submissionId && !deliveredToWebhook) {
+            const { error: updateError } = await supabaseAdmin
+                .from("form_submissions")
+                .update({ status: "webhook_failed" })
+                .eq("id", submissionId);
+
+            if (updateError) {
+                console.error("Error updating participation form submission status:", updateError);
+            }
+        }
+
+        revalidatePath("/admin");
+        revalidatePath("/admin/formularios");
+
+        if (savedToDatabase) {
+            return {
+                success: true,
+                warning: "Recebemos sua solicitação, mas houve instabilidade no encaminhamento interno.",
+            };
+        }
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Erro ao enviar solicitação.",
+        };
     }
 }
 

@@ -17,7 +17,7 @@ export default function ReformPage() {
                     <h2 className="text-2xl font-bold text-primary mb-6">O Projeto</h2>
                     <div className="prose max-w-none text-gray-600">
                         <p className="lead text-lg">
-                            "Se o Senhor não construir a casa, em vão trabalham os construtores" (Sl 126).
+                            &ldquo;Se o Senhor não construir a casa, em vão trabalham os construtores&rdquo; (Sl 126).
                         </p>
                         <p>
                             Nossa comunidade tem o sonho e a necessidade de reformar e ampliar nossa capela, para melhor acolher os fiéis e celebrar
@@ -91,6 +91,15 @@ export default function ReformPage() {
                                     { name: "whatsapp", label: "WhatsApp", type: "tel", required: true },
                                     { name: "ajuda", label: "Como deseja ajudar?", type: "select", options: ["Doação em Dinheiro", "Doação de Material", "Mão de Obra / Serviço", "Divulgação / Voluntariado"], required: true },
                                     { name: "mensagem", label: "Conte-nos mais", type: "textarea", required: false }
+                                ]}
+                                conditionalPanels={[
+                                    {
+                                        fieldName: "ajuda",
+                                        equals: "Doação em Dinheiro",
+                                        kind: "pix",
+                                        title: "PIX copia e cola",
+                                        description: "Escolha uma das chaves abaixo e faça sua doação agora. Depois, se quiser, deixe uma mensagem avisando o envio.",
+                                    },
                                 ]}
                                 submitLabel="Quero Colaborar"
                                 successMessage="Obrigado! Sua disposição em ajudar foi registrada. Entraremos em contato em breve."

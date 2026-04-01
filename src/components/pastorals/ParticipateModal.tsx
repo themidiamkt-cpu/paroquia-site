@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { sendParticipationData } from "@/lib/actions";
+import { getCommunities, sendParticipationData } from "@/lib/actions";
 
 interface ParticipateModalProps {
     pastoralName: string;
@@ -15,6 +15,8 @@ interface ParticipateModalProps {
 export function ParticipateModal({ pastoralName, coordinatorName, coordinatorContact, isOpen, onClose }: ParticipateModalProps) {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+    const [communityOptions, setCommunityOptions] = useState<string[]>([]);
+    const [loadingCommunities, setLoadingCommunities] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -24,6 +26,59 @@ export function ParticipateModal({ pastoralName, coordinatorName, coordinatorCon
         community: "",
         reason: ""
     });
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        let isMounted = true;
+
+        async function loadCommunities() {
+            setLoadingCommunities(true);
+
+            try {
+                const data = await getCommunities();
+
+                if (!isMounted) {
+                    return;
+                }
+
+                const activeCommunityNames = (data || [])
+                    .filter((community: { active?: boolean | null }) => community.active !== false)
+                    .map((community: { name: string }) => community.name)
+                    .filter(Boolean);
+
+                const options = [
+                    ...new Set([
+                        ...activeCommunityNames,
+                        "Outra Paróquia",
+                        "Não participo ainda",
+                    ]),
+                ];
+
+                setCommunityOptions(options);
+            } catch (error) {
+                console.error("Erro ao carregar comunidades:", error);
+
+                if (!isMounted) {
+                    return;
+                }
+
+                setCommunityOptions(["Outra Paróquia", "Não participo ainda"]);
+            } finally {
+                if (isMounted) {
+                    setLoadingCommunities(false);
+                }
+            }
+        }
+
+        void loadCommunities();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -145,13 +200,14 @@ export function ParticipateModal({ pastoralName, coordinatorName, coordinatorCon
                                     value={formData.community}
                                     onChange={e => setFormData({ ...formData, community: e.target.value })}
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-white"
+                                    disabled={loadingCommunities}
                                 >
-                                    <option value="">Selecione...</option>
-                                    <option value="Matriz São Pio X">Matriz São Pio X</option>
-                                    <option value="Comunidade Santa Teresinha">Comunidade Santa Teresinha</option>
-                                    <option value="Comunidade São João Batista">Comunidade São João Batista</option>
-                                    <option value="Outra Paróquia">Outra Paróquia</option>
-                                    <option value="Não participo ainda">Não participo ainda</option>
+                                    <option value="">{loadingCommunities ? "Carregando comunidades..." : "Selecione..."}</option>
+                                    {communityOptions.map((community) => (
+                                        <option key={community} value={community}>
+                                            {community}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 

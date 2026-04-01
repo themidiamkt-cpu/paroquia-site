@@ -1,6 +1,5 @@
 import { PageLayout } from "@/components/ui/PageLayout";
-import { Link as LinkIcon, ArrowRight, User } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, User } from "lucide-react";
 import Link from "next/link";
 import { getPastorals } from "@/lib/actions";
 
@@ -21,7 +20,7 @@ export default async function PastoralsPage() {
                 <section className="bg-accent/30 p-8 rounded-sm border-l-4 border-secondary">
                     <h2 className="text-xl font-bold text-primary mb-3">A Importância das Pastorais</h2>
                     <p className="text-gray-700 leading-relaxed">
-                        "A Igreja é viva se você é vivo". As pastorais são os braços da paróquia que alcançam as diversas necessidades da comunidade.
+                        &ldquo;A Igreja é viva se você é vivo&rdquo;. As pastorais são os braços da paróquia que alcançam as diversas necessidades da comunidade.
                         Participar de uma pastoral é colocar seus dons a serviço do Reino de Deus. Convidamos você a conhecer e se engajar!
                     </p>
                 </section>
@@ -30,7 +29,7 @@ export default async function PastoralsPage() {
                 {pastorals.length === 0 ? (
                     <p className="text-center text-gray-500">Nenhuma pastoral cadastrada.</p>
                 ) : (
-                    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <section className="grid grid-cols-2 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
                         {pastorals.map((pastoral) => (
                             <Link
                                 href={`/pastorais/${pastoral.slug || pastoral.id}`}
@@ -38,29 +37,29 @@ export default async function PastoralsPage() {
                                 className="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col"
                             >
                                 {pastoral.image_url ? (
-                                    <div className="h-48 w-full bg-gray-100 relative overflow-hidden">
+                                    <div className="h-28 w-full bg-gray-100 relative overflow-hidden md:h-48">
                                         <img src={pastoral.image_url} alt={pastoral.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                                     </div>
                                 ) : (
-                                    <div className="h-32 w-full bg-primary/5 flex items-center justify-center">
-                                        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl">
+                                    <div className="h-24 w-full bg-primary/5 flex items-center justify-center md:h-32">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary md:h-16 md:w-16 md:text-2xl">
                                             {pastoral.name.charAt(0)}
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="p-6 flex-grow flex flex-col">
-                                    <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition">{pastoral.name}</h3>
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed flex-grow">{pastoral.description}</p>
+                                <div className="flex grow flex-col p-4 md:p-6">
+                                    <h3 className="mb-2 text-base font-bold text-primary transition group-hover:text-secondary md:text-xl">{pastoral.name}</h3>
+                                    <p className="mb-4 line-clamp-3 flex-grow text-xs leading-relaxed text-gray-600 md:text-sm">{pastoral.description}</p>
 
-                                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50 text-sm">
+                                    <div className="mt-auto border-t border-gray-50 pt-3 text-xs md:pt-4 md:text-sm">
                                         {pastoral.coordinator ? (
-                                            <span className="text-gray-700 font-medium flex items-center gap-1">
+                                            <span className="mb-3 flex items-center gap-1 font-medium text-gray-700 md:mb-0">
                                                 <User size={14} /> {pastoral.coordinator}
                                             </span>
                                         ) : <span></span>}
 
-                                        <span className="text-secondary font-bold flex items-center gap-1 group-hover:translate-x-1 transition">
+                                        <span className="flex items-center gap-1 font-bold text-secondary transition group-hover:translate-x-1">
                                             Saiba mais <ArrowRight size={14} />
                                         </span>
                                     </div>

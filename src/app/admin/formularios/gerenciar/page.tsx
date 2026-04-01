@@ -2,26 +2,138 @@
 
 import { useState, useEffect } from "react";
 import { getForms, createForm } from "@/lib/actions";
-import { Plus, Edit, Trash2, FileText } from "lucide-react";
+import { Plus, Edit, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+interface DatabaseForm {
+    id: number;
+    title: string;
+    slug: string;
+    description?: string | null;
+}
+
+type ManagedFormCard = {
+    id: number | string;
+    title: string;
+    slug: string;
+    description: string;
+    publicPath?: string;
+    source: "dynamic" | "native";
+};
+
+const nativeForms: ManagedFormCard[] = [
+    {
+        id: "native-batismo",
+        title: "Solicitação de Batismo",
+        slug: "batismo",
+        description: "Formulário público para dar início ao processo de batismo.",
+        publicPath: "/batismo",
+        source: "native",
+    },
+    {
+        id: "native-catequese",
+        title: "Inscrição na Catequese",
+        slug: "catequese",
+        description: "Formulário público para inscrição de catequizandos.",
+        publicPath: "/catequese",
+        source: "native",
+    },
+    {
+        id: "native-intencao-missa",
+        title: "Intenção de Missa",
+        slug: "intencao-missa",
+        description: "Formulário público para envio de intenções de missa.",
+        publicPath: "/intencao-missa",
+        source: "native",
+    },
+    {
+        id: "native-contato",
+        title: "Contato",
+        slug: "contato",
+        description: "Formulário público para dúvidas e atendimento geral da secretaria.",
+        publicPath: "/contato",
+        source: "native",
+    },
+    {
+        id: "native-reforma",
+        title: "Quero Ajudar na Reforma",
+        slug: "reforma",
+        description: "Formulário público para apoio financeiro, material ou serviço na reforma.",
+        publicPath: "/reforma",
+        source: "native",
+    },
+    {
+        id: "native-pastorais",
+        title: "Quero Participar nas Pastorais",
+        slug: "pastorais",
+        description: "Formulário do modal de participação nas pastorais com seleção de comunidade.",
+        publicPath: "/pastorais",
+        source: "native",
+    },
+    {
+        id: "native-patrocinio-festa-junina",
+        title: "Patrocínio Festa Junina",
+        slug: "patrocinio-festa-junina",
+        description: "Formulário do modal para empresas interessadas em patrocinar a Festa Junina.",
+        publicPath: "/festa-junina",
+        source: "native",
+    },
+];
+
+function mergeForms(databaseForms: DatabaseForm[]) {
+    const merged = new Map<string, ManagedFormCard>();
+
+    nativeForms.forEach((form) => {
+        merged.set(form.slug, form);
+    });
+
+    databaseForms.forEach((form) => {
+        const existingForm = merged.get(form.slug);
+
+        merged.set(form.slug, {
+            id: form.id,
+            title: form.title,
+            slug: form.slug,
+            description:
+                form.description?.trim() ||
+                existingForm?.description ||
+                "Sem descrição.",
+            publicPath: existingForm?.publicPath,
+            source: "dynamic",
+        });
+    });
+
+    return Array.from(merged.values()).sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
+}
 
 export default function AdminFormsListPage() {
-    const [forms, setForms] = useState<any[]>([]);
+    const [forms, setForms] = useState<ManagedFormCard[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
-    const router = useRouter();
-
-    useEffect(() => {
-        loadForms();
-    }, []);
 
     async function loadForms() {
         setLoading(true);
         const data = await getForms();
-        setForms(data || []);
+        setForms(mergeForms((data || []) as DatabaseForm[]));
         setLoading(false);
     }
+
+    useEffect(() => {
+        let isMounted = true;
+
+        void getForms().then((data) => {
+            if (!isMounted) {
+                return;
+            }
+
+            setForms(mergeForms((data || []) as DatabaseForm[]));
+            setLoading(false);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault();
@@ -90,18 +202,44 @@ export default function AdminFormsListPage() {
                             <div className="p-3 bg-blue-50 text-primary rounded-lg">
                                 <FileText size={24} />
                             </div>
-                            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">/{form.slug}</span>
+                            <div className="flex flex-col items-end gap-2">
+                                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">/{form.slug}</span>
+                                <span
+                                    className={`text-[11px] px-2 py-1 rounded-full font-semibold ${
+                                        form.source === "dynamic"
+                                            ? "bg-emerald-100 text-emerald-700"
+                                            : "bg-amber-100 text-amber-700"
+                                    }`}
+                                >
+                                    {form.source === "dynamic" ? "Editor disponível" : "Formulário nativo"}
+                                </span>
+                            </div>
                         </div>
                         <h3 className="font-bold text-lg mb-2">{form.title}</h3>
                         <p className="text-gray-500 text-sm mb-4 line-clamp-2">{form.description || "Sem descrição."}</p>
 
-                        <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                            <Link
-                                href={`/admin/formularios/gerenciar/${form.id}`}
-                                className="flex items-center gap-2 text-secondary font-bold hover:underline"
-                            >
-                                <Edit size={16} /> Editar Campos
-                            </Link>
+                        <div className="pt-4 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                            {form.source === "dynamic" ? (
+                                <Link
+                                    href={`/admin/formularios/gerenciar/${form.id}`}
+                                    className="flex items-center gap-2 text-primary font-bold hover:underline"
+                                >
+                                    <Edit size={16} /> Editar Campos
+                                </Link>
+                            ) : (
+                                <span className="text-sm font-medium text-gray-500">
+                                    Campos gerenciados no codigo
+                                </span>
+                            )}
+
+                            {form.publicPath && (
+                                <Link
+                                    href={form.publicPath}
+                                    className="flex items-center gap-2 text-gray-600 font-medium hover:text-primary transition"
+                                >
+                                    <ExternalLink size={16} /> Abrir pagina
+                                </Link>
+                            )}
                         </div>
                     </div>
                 ))}

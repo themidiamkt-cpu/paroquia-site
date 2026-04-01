@@ -297,7 +297,7 @@ export default function EditarComunidadePage() {
                                 />
                                 <button
                                     onClick={handleAddSchedule}
-                                    className="w-full bg-secondary text-white py-2 rounded text-sm font-medium hover:bg-secondary/90 transition flex items-center justify-center gap-1"
+                                    className="flex w-full items-center justify-center gap-1 rounded bg-primary py-2 text-sm font-medium text-white transition hover:bg-primary/90"
                                 >
                                     <Plus size={16} /> Adicionar
                                 </button>

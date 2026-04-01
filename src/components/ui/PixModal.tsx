@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import { X, Copy, Check, Mail, Building2, Heart } from "lucide-react";
+import { pixKeys } from "@/lib/pix";
 
-const pixKeys = [
-    {
-        type: "E-mail",
-        key: "saopiox@arquidiocesecampinas.com",
-        icon: Mail,
-    },
-    {
-        type: "CNPJ",
-        key: "44588960/0014-04",
-        icon: Building2,
-    },
-];
+const iconMap = {
+    "CNPJ": Building2,
+    "E-mail": Mail,
+};
 
 interface PixModalProps {
     isOpen: boolean;
@@ -75,7 +68,10 @@ export function PixModal({ isOpen, onClose }: PixModalProps) {
                             className="bg-gray-50 rounded-lg p-4 border border-gray-100"
                         >
                             <div className="flex items-center gap-2 mb-2">
-                                <pix.icon size={16} className="text-secondary" />
+                                {(() => {
+                                    const Icon = iconMap[pix.type];
+                                    return <Icon size={16} className="text-secondary" />;
+                                })()}
                                 <span className="font-semibold text-gray-700 text-sm">
                                     Chave {pix.type}
                                 </span>

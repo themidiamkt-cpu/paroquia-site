@@ -189,7 +189,7 @@ export default function AdminReformaPage() {
                                 <tr key={item.id} className="hover:bg-gray-50">
                                     <td className="py-3 px-6">
                                         <div className="font-bold text-gray-800">{item.title}</div>
-                                        <div className="text-xs text-secondary font-bold uppercase tracking-wider mb-1">{item.stage}</div>
+                                        <div className="text-xs text-primary font-bold uppercase tracking-wider mb-1">{item.stage}</div>
                                         <div className="text-sm text-gray-500 line-clamp-1">{item.description}</div>
                                     </td>
                                     <td className="py-3 px-6">

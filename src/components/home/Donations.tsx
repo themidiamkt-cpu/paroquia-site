@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import { Heart, Copy, Check, Mail, Building2 } from "lucide-react";
+import { pixKeys } from "@/lib/pix";
 
-const pixKeys = [
-    {
-        type: "E-mail",
-        key: "saopiox@arquidiocesecampinas.com",
-        icon: Mail,
-    },
-    {
-        type: "CNPJ",
-        key: "44588960/0014-04",
-        icon: Building2,
-    },
-];
+const iconMap = {
+    "CNPJ": Building2,
+    "E-mail": Mail,
+};
 
 export function Donations() {
     const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -54,7 +47,10 @@ export function Donations() {
                                 className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20"
                             >
                                 <div className="flex items-center justify-center gap-2 mb-3">
-                                    <pix.icon size={20} className="text-secondary" />
+                                    {(() => {
+                                        const Icon = iconMap[pix.type];
+                                        return <Icon size={20} className="text-secondary" />;
+                                    })()}
                                     <span className="font-semibold text-secondary">
                                         Chave PIX ({pix.type})
                                     </span>

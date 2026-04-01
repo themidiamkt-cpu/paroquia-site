@@ -5,7 +5,7 @@ import { getPastorals } from "@/lib/actions";
 
 export async function FeaturedPastorals() {
     const allPastorals = await getPastorals();
-    const pastorals = allPastorals.slice(0, 3);
+    const pastorals = allPastorals.slice(0, 4);
 
     return (
         <section className="py-20 bg-accent/30">
@@ -30,7 +30,7 @@ export async function FeaturedPastorals() {
                 {pastorals.length === 0 ? (
                     <p className="text-center text-gray-500">Nenhuma pastoral cadastrada.</p>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 md:gap-8">
                         {pastorals.map((pastoral) => (
                             <Link
                                 href={`/pastorais/${pastoral.slug || pastoral.id}`}
@@ -38,7 +38,7 @@ export async function FeaturedPastorals() {
                                 className="group bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col"
                             >
                                 {pastoral.image_url ? (
-                                    <div className="h-48 w-full bg-gray-100 relative overflow-hidden">
+                                    <div className="h-28 w-full bg-gray-100 relative overflow-hidden md:h-48">
                                         <img
                                             src={pastoral.image_url}
                                             alt={pastoral.name}
@@ -46,22 +46,22 @@ export async function FeaturedPastorals() {
                                         />
                                     </div>
                                 ) : (
-                                    <div className="h-32 w-full bg-primary/5 flex items-center justify-center">
-                                        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl">
+                                    <div className="h-24 w-full bg-primary/5 flex items-center justify-center md:h-32">
+                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl md:h-16 md:w-16 md:text-2xl">
                                             {pastoral.name.charAt(0)}
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="p-6 flex-grow flex flex-col">
-                                    <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition">
+                                <div className="p-4 md:p-6 flex-grow flex flex-col">
+                                    <h3 className="text-base md:text-xl font-bold text-primary mb-2 group-hover:text-secondary transition">
                                         {pastoral.name}
                                     </h3>
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed flex-grow">
+                                    <p className="text-xs md:text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed flex-grow">
                                         {pastoral.description}
                                     </p>
 
-                                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50 text-sm">
+                                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mt-auto pt-4 border-t border-gray-50 text-xs md:text-sm">
                                         {pastoral.coordinator ? (
                                             <span className="text-gray-500 flex items-center gap-1">
                                                 <User size={14} /> {pastoral.coordinator}

@@ -2,9 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, type FieldErrors, type SubmitHandler } from "react-hook-form";
 import { sendToWebhook } from "@/lib/webhooks";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { PixCopyPanel } from "@/components/ui/PixCopyPanel";
 
 interface Field {
     name: string;
@@ -20,20 +21,41 @@ interface GenericFormProps {
     fields: Field[];
     submitLabel?: string;
     successMessage?: string;
+    conditionalPanels?: ConditionalPanel[];
 }
 
-export function GenericForm({ formName, fields, submitLabel = "Enviar", successMessage = "Formulário enviado com sucesso!" }: GenericFormProps) {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
-    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+type FormValues = Record<string, string>;
 
-    const onSubmit = async (data: any) => {
+interface ConditionalPanel {
+    fieldName: string;
+    equals: string;
+    kind: "pix";
+    title?: string;
+    description?: string;
+}
+
+export function GenericForm({
+    formName,
+    fields,
+    submitLabel = "Enviar",
+    successMessage = "Formulário enviado com sucesso!",
+    conditionalPanels = [],
+}: GenericFormProps) {
+    const { control, register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>();
+    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [errorMessage, setErrorMessage] = useState("Ocorreu um erro ao enviar. Tente novamente.");
+    const values = useWatch({ control }) || {};
+
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         setStatus("loading");
+        setErrorMessage("Ocorreu um erro ao enviar. Tente novamente.");
         const result = await sendToWebhook(formName, data);
 
         if (result.success) {
             setStatus("success");
             reset();
         } else {
+            setErrorMessage(result.error || "Ocorreu um erro ao enviar. Tente novamente.");
             setStatus("error");
         }
     };
@@ -61,7 +83,7 @@ export function GenericForm({ formName, fields, submitLabel = "Enviar", successM
             {status === "error" && (
                 <div className="bg-red-50 border border-red-200 rounded p-4 flex items-center gap-2 text-red-700">
                     <AlertCircle size={20} />
-                    <p>Ocorreu um erro ao enviar. Tente novamente.</p>
+                    <p>{errorMessage}</p>
                 </div>
             )}
 
@@ -96,7 +118,21 @@ export function GenericForm({ formName, fields, submitLabel = "Enviar", successM
                             placeholder={field.placeholder}
                         />
                     )}
-                    {errors[field.name] && <span className="text-xs text-red-500">Campo obrigatório</span>}
+                    {hasFieldError(errors, field.name) && <span className="text-xs text-red-500">Campo obrigatório</span>}
+
+                    {conditionalPanels
+                        .filter((panel) => panel.fieldName === field.name && values[panel.fieldName] === panel.equals)
+                        .map((panel) => (
+                            <div key={`${panel.fieldName}-${panel.equals}-${panel.kind}`} className="mt-4">
+                                {panel.kind === "pix" && (
+                                    <PixCopyPanel
+                                        title={panel.title}
+                                        description={panel.description}
+                                        compact
+                                    />
+                                )}
+                            </div>
+                        ))}
                 </div>
             ))}
 
@@ -110,4 +146,8 @@ export function GenericForm({ formName, fields, submitLabel = "Enviar", successM
             </button>
         </form>
     );
+}
+
+function hasFieldError(errors: FieldErrors<FormValues>, fieldName: string) {
+    return Boolean(errors[fieldName]);
 }
