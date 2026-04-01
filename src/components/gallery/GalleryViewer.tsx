@@ -68,6 +68,7 @@ export function GalleryViewer({ title, images }: GalleryViewerProps) {
     }
 
     const activeImage = activeIndex !== null ? images[activeIndex] : null;
+    const activeImageNumber = activeIndex !== null ? activeIndex + 1 : 0;
 
     return (
         <>
@@ -123,13 +124,13 @@ export function GalleryViewer({ title, images }: GalleryViewerProps) {
                         <div className="overflow-hidden rounded-2xl bg-black">
                             <img
                                 src={activeImage.image_url}
-                                alt={`${title} - foto ${activeIndex + 1}`}
+                                alt={`${title} - foto ${activeImageNumber}`}
                                 className="w-full max-h-[82vh] object-contain"
                             />
                         </div>
 
                         <div className="mt-4 text-center text-sm text-white/80">
-                            {activeIndex + 1} de {images.length}
+                            {activeImageNumber} de {images.length}
                         </div>
                     </div>
                 </div>
