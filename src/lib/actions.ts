@@ -985,6 +985,74 @@ export async function reorderGalleryImages(galleryId: number, orderedIds: number
     revalidatePath(`/galeria/${galleryId}`);
 }
 
+const STORAGE_BUCKET_NAME = "sitePspx";
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg"];
+const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
+
+function validateImageUploadInput(fileName: string, fileType: string, fileSize: number) {
+    const normalizedType = (fileType || "image/jpeg").toLowerCase();
+
+    if (!ALLOWED_IMAGE_TYPES.includes(normalizedType)) {
+        throw new Error(`Tipo de arquivo não permitido: ${fileType}. Use JPG, PNG, WEBP ou GIF.`);
+    }
+
+    if (fileSize > MAX_IMAGE_FILE_SIZE) {
+        throw new Error("Arquivo muito grande. Máximo 10MB.");
+    }
+
+    if (!fileName.trim()) {
+        throw new Error("Nome do arquivo inválido.");
+    }
+
+    return normalizedType;
+}
+
+export async function createImageUploadUrl(formData: FormData) {
+    const fileName = (formData.get("fileName") as string | null)?.trim() || "";
+    const fileType = (formData.get("fileType") as string | null)?.trim() || "image/jpeg";
+    const fileSize = Number(formData.get("fileSize") || 0);
+    const folder = (formData.get("folder") as string | null)?.trim() || "uploads";
+
+    const normalizedType = validateImageUploadInput(fileName, fileType, fileSize);
+
+    const { data: buckets, error: bucketError } = await supabaseAdmin.storage.listBuckets();
+
+    if (bucketError) {
+        console.error("Supabase Storage List Buckets Error:", bucketError);
+        throw new Error("Nao foi possivel acessar o bucket de imagens.");
+    }
+
+    const bucketExists = buckets?.some((bucket) => bucket.name === STORAGE_BUCKET_NAME);
+
+    if (!bucketExists) {
+        throw new Error(`Bucket de imagens '${STORAGE_BUCKET_NAME}' nao encontrado no Supabase.`);
+    }
+
+    const ext = fileName.split(".").pop()?.toLowerCase() || normalizedType.split("/")[1] || "jpg";
+    const cleanName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
+    const path = `${folder}/${cleanName}`;
+
+    const { data, error } = await supabaseAdmin.storage
+        .from(STORAGE_BUCKET_NAME)
+        .createSignedUploadUrl(path);
+
+    if (error || !data?.token) {
+        console.error("Supabase Storage Signed Upload Error:", error);
+        throw new Error(error?.message || "Nao foi possivel preparar o upload da imagem.");
+    }
+
+    const {
+        data: { publicUrl },
+    } = supabaseAdmin.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(path);
+
+    return {
+        bucket: STORAGE_BUCKET_NAME,
+        path,
+        token: data.token,
+        publicUrl,
+    };
+}
+
 export async function uploadImage(formData: FormData) {
     const file = formData.get("file") as File;
     const folder = formData.get("folder") as string || "uploads";
@@ -993,42 +1061,17 @@ export async function uploadImage(formData: FormData) {
         throw new Error("No file uploaded");
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
-    const fileType = file.type || 'image/jpeg';
-
-    if (!allowedTypes.includes(fileType.toLowerCase())) {
-        throw new Error(`Tipo de arquivo não permitido: ${fileType}. Use JPG, PNG, WEBP ou GIF.`);
-    }
-
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        throw new Error("Arquivo muito grande. Máximo 10MB.");
-    }
-
     try {
-        // Ensure bucket exists (idempotent-ish)
-        const { data: buckets } = await supabaseAdmin.storage.listBuckets();
-        const bucketExists = buckets?.some(b => b.name === "sitePspx");
-
-        if (!bucketExists) {
-            // Try creating it if not exists. public: true is important for publicUrl
-            await supabaseAdmin.storage.createBucket("sitePspx", {
-                public: true,
-                fileSizeLimit: 10485760, // 10MB
-                allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg']
-            });
-        }
+        const fileType = validateImageUploadInput(file.name, file.type || "image/jpeg", file.size);
 
         const buffer = await file.arrayBuffer();
-        // Sanitize filename but keep extension
-        const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const cleanName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
         const path = `${folder}/${cleanName}`;
 
-        const { data, error } = await supabaseAdmin
+        const { error } = await supabaseAdmin
             .storage
-            .from("sitePspx")
+            .from(STORAGE_BUCKET_NAME)
             .upload(path, buffer, {
                 contentType: fileType,
                 upsert: false
@@ -1041,7 +1084,7 @@ export async function uploadImage(formData: FormData) {
 
         const { data: { publicUrl } } = supabaseAdmin
             .storage
-            .from("sitePspx")
+            .from(STORAGE_BUCKET_NAME)
             .getPublicUrl(path);
 
         return publicUrl;

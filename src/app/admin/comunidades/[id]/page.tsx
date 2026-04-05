@@ -5,11 +5,11 @@ import { useRouter, useParams } from "next/navigation";
 import {
     getCommunityById,
     updateCommunity,
-    uploadImage,
     getCommunitySchedules,
     createCommunitySchedule,
     deleteCommunitySchedule
 } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { ArrowLeft, Save, Upload, Loader2, Plus, Trash, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,15 +80,11 @@ export default function EditarComunidadePage() {
 
         setUploading(true);
         try {
-            const data = new FormData();
-            data.append("file", file);
-            data.append("folder", "comunidades");
-
-            const url = await uploadImage(data);
+            const url = await uploadImageFile(file, "comunidades");
             setFormData({ ...formData, image_url: url || "" });
         } catch (error) {
             console.error("Erro ao fazer upload:", error);
-            alert("Erro ao fazer upload da imagem.");
+            alert(error instanceof Error ? error.message : "Erro ao fazer upload da imagem.");
         } finally {
             setUploading(false);
         }

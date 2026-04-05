@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getNotices, createNotice, updateNotice, deleteNotice, uploadImage } from "@/lib/actions";
+import { getNotices, createNotice, updateNotice, deleteNotice } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { Plus, Trash, Edit, Save, AlertTriangle, Loader2, Upload } from "lucide-react";
 
 interface NoticeItem {
@@ -36,16 +37,12 @@ export default function AdminAvisosPage() {
 
         setUploading(true);
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "avisos");
-
         try {
-            const url = await uploadImage(formData);
+            const url = await uploadImageFile(file, "avisos");
             setCurrentItem(prev => ({ ...prev, image_url: url }));
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Erro ao enviar imagem. Verifique se o arquivo é válido.");
+            alert(error instanceof Error ? error.message : "Erro ao enviar imagem. Verifique se o arquivo é válido.");
         } finally {
             setUploading(false);
         }

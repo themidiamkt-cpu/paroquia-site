@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import {
     getPastorals, createPastoral, updatePastoral, deletePastoral,
-    uploadImage, getPastoralMembers, addPastoralMember, deletePastoralMember
+    getPastoralMembers, addPastoralMember, deletePastoralMember
 } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { Plus, Trash, Edit, Save, Loader2, Upload, User, Phone, Users } from "lucide-react";
 
 interface PastoralItem {
@@ -83,16 +84,12 @@ export default function AdminPastoraisPage() {
 
         setUploading(true);
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "pastorais");
-
         try {
-            const url = await uploadImage(formData);
+            const url = await uploadImageFile(file, "pastorais");
             setCurrentItem(prev => ({ ...prev, image_url: url }));
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Erro ao enviar imagem. Verifique se o arquivo é válido.");
+            alert(error instanceof Error ? error.message : "Erro ao enviar imagem. Verifique se o arquivo é válido.");
         } finally {
             setUploading(false);
         }

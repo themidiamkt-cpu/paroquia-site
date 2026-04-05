@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getReformUpdates, createReformUpdate, updateReformUpdate, deleteReformUpdate, uploadImage } from "@/lib/actions";
+import { getReformUpdates, createReformUpdate, updateReformUpdate, deleteReformUpdate } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { Plus, Trash, Edit, Save, Loader2, Upload, ImageIcon } from "lucide-react";
 
 interface ReformUpdateItem {
@@ -26,16 +27,12 @@ export default function AdminReformaPage() {
 
         setUploading(true);
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "reforma");
-
         try {
-            const url = await uploadImage(formData);
+            const url = await uploadImageFile(file, "reforma");
             setCurrentItem(prev => ({ ...prev, image_url: url }));
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Upload failed", error);
-            alert(`Erro: ${error?.message || 'Falha no upload'}`);
+            alert(`Erro: ${error instanceof Error ? error.message : "Falha no upload"}`);
         } finally {
             setUploading(false);
         }

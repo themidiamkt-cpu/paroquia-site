@@ -10,8 +10,8 @@ import {
     getGalleryImages,
     reorderGalleryImages,
     setGalleryCover,
-    uploadImage,
 } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { formatDateOnly } from "@/lib/date";
 import { ArrowLeft, ExternalLink, GripVertical, ImagePlus, Loader2, Star, Trash } from "lucide-react";
 
@@ -104,11 +104,7 @@ export default function AdminGalleryImagesPage() {
             for (const [index, file] of files.entries()) {
                 setUploadProgress(`Enviando ${index + 1} de ${files.length}...`);
 
-                const data = new FormData();
-                data.append("file", file);
-                data.append("folder", `galeria/${galleryId}`);
-
-                const url = await uploadImage(data);
+                const url = await uploadImageFile(file, `galeria/${galleryId}`);
                 if (url) {
                     uploadedUrls.push(url);
                 }

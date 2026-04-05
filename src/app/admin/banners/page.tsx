@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getBanners, createBanner, updateBanner, deleteBanner, uploadImage } from "@/lib/actions";
+import { getBanners, createBanner, updateBanner, deleteBanner } from "@/lib/actions";
+import { uploadImageFile } from "@/lib/client-upload";
 import { Plus, Trash, Edit, Save, X, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 
 interface Banner {
@@ -26,16 +27,12 @@ export default function AdminBannersPage() {
 
         setUploading(true);
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "banners");
-
         try {
-            const url = await uploadImage(formData);
+            const url = await uploadImageFile(file, "banners");
             setCurrentItem(prev => ({ ...prev, image_url: url }));
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Erro ao enviar imagem. Verifique se o arquivo é válido.");
+            alert(error instanceof Error ? error.message : "Erro ao enviar imagem. Verifique se o arquivo é válido.");
         } finally {
             setUploading(false);
         }
