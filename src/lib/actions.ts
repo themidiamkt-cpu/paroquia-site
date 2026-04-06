@@ -990,18 +990,18 @@ export async function reorderGalleryImages(galleryId: number, orderedIds: number
     revalidatePath(`/galeria/${galleryId}`);
 }
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg"];
-const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg", "image/avif"];
+const MAX_IMAGE_FILE_SIZE = 25 * 1024 * 1024;
 
 function validateImageUploadInput(fileName: string, fileType: string, fileSize: number) {
     const normalizedType = (fileType || "image/jpeg").toLowerCase();
 
     if (!ALLOWED_IMAGE_TYPES.includes(normalizedType)) {
-        throw new Error(`Tipo de arquivo não permitido: ${fileType}. Use JPG, PNG, WEBP ou GIF.`);
+        throw new Error(`Tipo de arquivo não permitido: ${fileType}. Use JPG, PNG, WEBP, AVIF ou GIF.`);
     }
 
     if (fileSize > MAX_IMAGE_FILE_SIZE) {
-        throw new Error("Arquivo muito grande. Máximo 10MB.");
+        throw new Error("Arquivo muito grande. Máximo 25MB.");
     }
 
     if (!fileName.trim()) {
@@ -1035,8 +1035,10 @@ export async function createImageUploadUrl(formData: FormData) {
     } catch (error) {
         console.error("R2 signed upload preparation error:", error);
 
-        const message = error instanceof Error && error.message.includes("Variavel de ambiente ausente")
-            ? "Cloudflare R2 nao esta configurado neste ambiente."
+        const message = error instanceof Error
+            ? (error.message.includes("Variavel de ambiente ausente")
+                ? "Cloudflare R2 nao esta configurado neste ambiente."
+                : error.message)
             : "Nao foi possivel preparar o upload da imagem.";
 
         return {
