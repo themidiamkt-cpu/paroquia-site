@@ -5,6 +5,7 @@ import { formatDateOnly } from "@/lib/date";
 
 interface Gallery {
     id: number;
+    created_at: string;
     title: string;
     description: string;
     event_date: string | null;
@@ -13,7 +14,17 @@ interface Gallery {
 
 export async function RecentGallery() {
     const galleries = (await getGalleries()) as Gallery[];
-    const recentGalleries = galleries.slice(0, 3);
+    const recentGalleries = [...galleries]
+        .sort((first, second) => {
+            const eventDateComparison = (second.event_date || "").localeCompare(first.event_date || "");
+
+            if (eventDateComparison !== 0) {
+                return eventDateComparison;
+            }
+
+            return (second.created_at || "").localeCompare(first.created_at || "");
+        })
+        .slice(0, 3);
 
     if (recentGalleries.length === 0) {
         return null;

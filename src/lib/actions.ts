@@ -511,7 +511,8 @@ export async function getGalleries() {
     const { data, error } = await supabaseAdmin
         .from("galleries")
         .select("*")
-        .order("event_date", { ascending: false });
+        .order("event_date", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
 
     if (error) {
         console.error("Error fetching galleries:", error);
