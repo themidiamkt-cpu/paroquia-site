@@ -1,7 +1,6 @@
 "use client";
 
 import { createImageUploadUrl } from "@/lib/actions";
-import { supabase } from "@/lib/supabase";
 
 export async function uploadImageFile(file: File, folder = "uploads") {
     const formData = new FormData();
@@ -12,16 +11,18 @@ export async function uploadImageFile(file: File, folder = "uploads") {
 
     const uploadData = await createImageUploadUrl(formData);
 
-    const { error } = await supabase.storage
-        .from(uploadData.bucket)
-        .uploadToSignedUrl(uploadData.path, uploadData.token, file, {
-            contentType: file.type || "image/jpeg",
-            upsert: false,
-        });
+    const response = await fetch(uploadData.uploadUrl, {
+        method: "PUT",
+        headers: {
+            "Content-Type": file.type || "image/jpeg",
+        },
+        body: file,
+    });
 
-    if (error) {
-        console.error("Supabase client signed upload error:", error);
-        throw new Error(error.message || "Nao foi possivel enviar a imagem.");
+    if (!response.ok) {
+        const responseText = await response.text().catch(() => "");
+        console.error("R2 signed upload error:", response.status, responseText);
+        throw new Error("Nao foi possivel enviar a imagem para o Cloudflare R2.");
     }
 
     return uploadData.publicUrl;

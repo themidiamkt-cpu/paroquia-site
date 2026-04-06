@@ -2,6 +2,11 @@
 
 import { supabaseAdmin } from "./supabase-admin";
 import { revalidatePath } from "next/cache";
+import {
+    createR2PresignedUpload,
+    ensureR2BucketExists,
+    uploadBufferToR2,
+} from "./r2";
 
 // --- NEWS ---
 
@@ -985,7 +990,6 @@ export async function reorderGalleryImages(galleryId: number, orderedIds: number
     revalidatePath(`/galeria/${galleryId}`);
 }
 
-const STORAGE_BUCKET_NAME = "sitePspx";
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg"];
 const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -1015,42 +1019,21 @@ export async function createImageUploadUrl(formData: FormData) {
 
     const normalizedType = validateImageUploadInput(fileName, fileType, fileSize);
 
-    const { data: buckets, error: bucketError } = await supabaseAdmin.storage.listBuckets();
-
-    if (bucketError) {
-        console.error("Supabase Storage List Buckets Error:", bucketError);
-        throw new Error("Nao foi possivel acessar o bucket de imagens.");
-    }
-
-    const bucketExists = buckets?.some((bucket) => bucket.name === STORAGE_BUCKET_NAME);
-
-    if (!bucketExists) {
-        throw new Error(`Bucket de imagens '${STORAGE_BUCKET_NAME}' nao encontrado no Supabase.`);
+    try {
+        await ensureR2BucketExists();
+    } catch (error) {
+        console.error("R2 HeadBucket error:", error);
+        throw new Error("Nao foi possivel acessar o bucket de imagens no Cloudflare R2.");
     }
 
     const ext = fileName.split(".").pop()?.toLowerCase() || normalizedType.split("/")[1] || "jpg";
     const cleanName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
-    const path = `${folder}/${cleanName}`;
+    const key = `${folder}/${cleanName}`;
 
-    const { data, error } = await supabaseAdmin.storage
-        .from(STORAGE_BUCKET_NAME)
-        .createSignedUploadUrl(path);
-
-    if (error || !data?.token) {
-        console.error("Supabase Storage Signed Upload Error:", error);
-        throw new Error(error?.message || "Nao foi possivel preparar o upload da imagem.");
-    }
-
-    const {
-        data: { publicUrl },
-    } = supabaseAdmin.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(path);
-
-    return {
-        bucket: STORAGE_BUCKET_NAME,
-        path,
-        token: data.token,
-        publicUrl,
-    };
+    return createR2PresignedUpload({
+        key,
+        contentType: normalizedType,
+    });
 }
 
 export async function uploadImage(formData: FormData) {
@@ -1067,30 +1050,17 @@ export async function uploadImage(formData: FormData) {
         const buffer = await file.arrayBuffer();
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const cleanName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-        const path = `${folder}/${cleanName}`;
+        const key = `${folder}/${cleanName}`;
 
-        const { error } = await supabaseAdmin
-            .storage
-            .from(STORAGE_BUCKET_NAME)
-            .upload(path, buffer, {
-                contentType: fileType,
-                upsert: false
-            });
-
-        if (error) {
-            console.error("Supabase Storage Upload Error:", error);
-            throw new Error(`Upload failed: ${error.message}`);
-        }
-
-        const { data: { publicUrl } } = supabaseAdmin
-            .storage
-            .from(STORAGE_BUCKET_NAME)
-            .getPublicUrl(path);
-
-        return publicUrl;
-    } catch (err: any) {
+        await ensureR2BucketExists();
+        return await uploadBufferToR2({
+            key,
+            body: buffer,
+            contentType: fileType,
+        });
+    } catch (err: unknown) {
         console.error("Server Action Upload Error:", err);
-        throw new Error(err.message || "Erro interno no upload");
+        throw new Error(err instanceof Error ? err.message : "Erro interno no upload");
     }
 }
 
