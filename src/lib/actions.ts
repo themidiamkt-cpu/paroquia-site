@@ -1012,28 +1012,38 @@ function validateImageUploadInput(fileName: string, fileType: string, fileSize: 
 }
 
 export async function createImageUploadUrl(formData: FormData) {
-    const fileName = (formData.get("fileName") as string | null)?.trim() || "";
-    const fileType = (formData.get("fileType") as string | null)?.trim() || "image/jpeg";
-    const fileSize = Number(formData.get("fileSize") || 0);
-    const folder = (formData.get("folder") as string | null)?.trim() || "uploads";
-
-    const normalizedType = validateImageUploadInput(fileName, fileType, fileSize);
-
     try {
-        await ensureR2BucketExists();
+        const fileName = (formData.get("fileName") as string | null)?.trim() || "";
+        const fileType = (formData.get("fileType") as string | null)?.trim() || "image/jpeg";
+        const fileSize = Number(formData.get("fileSize") || 0);
+        const folder = (formData.get("folder") as string | null)?.trim() || "uploads";
+
+        const normalizedType = validateImageUploadInput(fileName, fileType, fileSize);
+        const ext = fileName.split(".").pop()?.toLowerCase() || normalizedType.split("/")[1] || "jpg";
+        const cleanName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
+        const key = `${folder}/${cleanName}`;
+
+        const uploadData = await createR2PresignedUpload({
+            key,
+            contentType: normalizedType,
+        });
+
+        return {
+            ok: true as const,
+            ...uploadData,
+        };
     } catch (error) {
-        console.error("R2 HeadBucket error:", error);
-        throw new Error("Nao foi possivel acessar o bucket de imagens no Cloudflare R2.");
+        console.error("R2 signed upload preparation error:", error);
+
+        const message = error instanceof Error && error.message.includes("Variavel de ambiente ausente")
+            ? "Cloudflare R2 nao esta configurado neste ambiente."
+            : "Nao foi possivel preparar o upload da imagem.";
+
+        return {
+            ok: false as const,
+            error: message,
+        };
     }
-
-    const ext = fileName.split(".").pop()?.toLowerCase() || normalizedType.split("/")[1] || "jpg";
-    const cleanName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
-    const key = `${folder}/${cleanName}`;
-
-    return createR2PresignedUpload({
-        key,
-        contentType: normalizedType,
-    });
 }
 
 export async function uploadImage(formData: FormData) {
