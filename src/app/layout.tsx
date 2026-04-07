@@ -12,9 +12,12 @@ export const metadata: Metadata = {
   description: "Portal oficial da Paróquia São Pio X em Campinas. Horários de missa, notícias, eventos e serviços online.",
   keywords: ["Igreja Católica", "Campinas", "São Pio X", "Missa", "Paróquia"],
   icons: {
-    icon: "/favicon.ico?v=3",
-    shortcut: "/favicon.ico?v=3",
-    apple: "/logo.png?v=3",
+    icon: [
+      { url: "/favicon-32x32.png?v=4", sizes: "32x32", type: "image/png" },
+      { url: "/icon.png?v=4", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon-32x32.png?v=4",
+    apple: "/apple-touch-icon.png?v=4",
   },
 };
 

@@ -1,7 +1,8 @@
 
 import { PageLayout } from "@/components/ui/PageLayout";
 import { GenericForm } from "@/components/ui/GenericForm";
-import { MapPin, Phone, Mail, Clock, AlertCircle } from "lucide-react";
+import { MapPin, Phone, Clock, AlertCircle } from "lucide-react";
+import { PARISH_CONTACT, SECRETARY_SCHEDULE } from "@/lib/parish-info";
 
 export default function ContactPage() {
     return (
@@ -26,8 +27,8 @@ export default function ContactPage() {
                                     <h3 className="font-bold text-gray-900 mb-1">Endereço</h3>
                                     <p className="text-gray-600 leading-relaxed">
                                         Paróquia São Pio X<br />
-                                        R. Eudes Batista Ribeiro, S/N<br />
-                                        Jardim Santa Rosa<br />
+                                        {PARISH_CONTACT.addressLine1}<br />
+                                        {PARISH_CONTACT.addressLine2}<br />
                                         Campinas – SP<br />
                                         CEP: 13058-712
                                     </p>
@@ -42,7 +43,7 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-gray-900 mb-1">Telefone e WhatsApp</h3>
                                     <p className="text-xl font-bold text-primary group-hover:text-secondary transition-colors">
-                                        (19) 3261-2099
+                                        {PARISH_CONTACT.phone}
                                     </p>
                                     <div className="flex items-center gap-2 mt-2 text-red-500 text-xs bg-red-50 p-2 rounded-sm border border-red-100">
                                         <AlertCircle size={14} />
@@ -59,8 +60,8 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-gray-900 mb-1">Horário de Atendimento</h3>
                                     <div className="space-y-1 text-gray-600 text-sm">
-                                        <p><strong>Segunda a Sexta:</strong> 08h às 12h | 13h às 17h</p>
-                                        <p><strong>Sábado:</strong> 08h às 12h</p>
+                                        <p><strong>{SECRETARY_SCHEDULE.weekdayLabel}:</strong> {SECRETARY_SCHEDULE.morning} | {SECRETARY_SCHEDULE.afternoon}</p>
+                                        <p><strong>{SECRETARY_SCHEDULE.saturdayLabel}:</strong> {SECRETARY_SCHEDULE.saturdayHours}</p>
                                         <p className="text-red-500 text-xs mt-1">* Não há atendimento em feriados.</p>
                                     </div>
                                 </div>

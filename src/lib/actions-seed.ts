@@ -38,7 +38,7 @@ export async function seedDatabase() {
         { day_of_week: "Quarta-feira", time: "15:00", description: "Santa Missa com Novena do Perpétuo Socorro", type: "missa" },
         { day_of_week: "Quinta-feira", time: "20:00", description: "Santa Missa com Novena de N. Sra. Desatadora dos Nós", type: "missa" },
         { day_of_week: "Sábado", time: "20:00", description: "Santa Missa Dominical (Vigília)", type: "missa" },
-        { day_of_week: "Domingo", time: "09:15", description: "Santa Missa Dominical", type: "missa" },
+        { day_of_week: "Domingo", time: "08:30", description: "Santa Missa Dominical", type: "missa" },
 
         // Confessions
         { day_of_week: "Terça-feira", time: "08:00", description: "Confissões (até 12h)", type: "confissao" },

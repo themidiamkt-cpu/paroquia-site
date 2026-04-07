@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Instagram, MapPin, Phone, Mail, ArrowRight } from "lucide-react";
+import { MATRIZ_MASS_SCHEDULE, PARISH_CONTACT } from "@/lib/parish-info";
 
 export function Footer() {
     return (
@@ -44,21 +45,21 @@ export function Footer() {
                             <li className="flex items-start gap-3 text-gray-300">
                                 <MapPin className="text-secondary shrink-0 mt-1" size={18} />
                                 <span className="text-sm">
-                                    R. Eudes Batista Ribeiro, S/N<br />
-                                    Jardim Santa Rosa<br />
-                                    Campinas – SP, 13058-712
+                                    {PARISH_CONTACT.addressLine1}<br />
+                                    {PARISH_CONTACT.addressLine2}<br />
+                                    {PARISH_CONTACT.cityLine}
                                 </span>
                             </li>
                             <li className="flex items-start gap-3 text-gray-300">
                                 <Phone className="text-secondary shrink-0 mt-1" size={18} />
                                 <div className="text-sm">
-                                    <span className="block">(19) 3261-2099</span>
+                                    <span className="block">{PARISH_CONTACT.phone}</span>
                                     <span className="text-xs text-gray-500">Secretaria e WhatsApp</span>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3 text-gray-300">
                                 <Mail className="text-secondary shrink-0 mt-1" size={18} />
-                                <span className="text-sm">saopiox@arquidiocesecampinas.com</span>
+                                <span className="text-sm">{PARISH_CONTACT.email}</span>
                             </li>
                         </ul>
                     </div>
@@ -67,22 +68,12 @@ export function Footer() {
                     <div>
                         <h4 className="font-bold text-lg mb-6 text-secondary">Horários de Missa</h4>
                         <ul className="space-y-3 text-sm text-gray-300">
-                            <li className="flex justify-between border-b border-white/10 pb-2">
-                                <span>Quarta-feira</span>
-                                <span className="font-bold text-white">15h</span>
-                            </li>
-                            <li className="flex justify-between border-b border-white/10 pb-2">
-                                <span>Quinta-feira</span>
-                                <span className="font-bold text-white">20h</span>
-                            </li>
-                            <li className="flex justify-between border-b border-white/10 pb-2">
-                                <span>Sábado</span>
-                                <span className="font-bold text-white">20h</span>
-                            </li>
-                            <li className="flex justify-between border-b border-white/10 pb-2">
-                                <span>Domingo</span>
-                                <span className="font-bold text-white">09h15</span>
-                            </li>
+                            {MATRIZ_MASS_SCHEDULE.map((item) => (
+                                <li key={item.label} className="flex justify-between border-b border-white/10 pb-2">
+                                    <span>{item.label}</span>
+                                    <span className="font-bold text-white">{item.time}</span>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 

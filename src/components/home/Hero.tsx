@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Clock, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { getBanners } from "@/lib/actions";
 import { HeroCarousel } from "./HeroCarousel";
+import { MATRIZ_MASS_SCHEDULE, PARISH_CONTACT, SECRETARY_SCHEDULE } from "@/lib/parish-info";
 
 export async function Hero() {
     const banners = await getBanners();
@@ -67,12 +68,17 @@ export async function Hero() {
                             <div className="min-w-0">
                                 <h3 className="mb-2 text-sm font-bold text-primary md:text-xl">Missas</h3>
                                 <ul className="space-y-1 text-[10px] leading-4 text-gray-600 md:text-sm md:space-y-1.5">
-                                    <li className="md:hidden">Qua/Qui: 15h / 20h</li>
-                                    <li className="md:hidden">Sab: 20h00</li>
-                                    <li className="md:hidden">Dom: 09h15</li>
-                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Quarta / Quinta:</span> <span className="font-medium text-gray-900">15h / 20h</span></li>
-                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Sábado:</span> <span className="font-medium text-gray-900">20h00</span></li>
-                                    <li className="hidden w-full justify-between gap-8 md:flex"><span>Domingo:</span> <span className="font-medium text-gray-900">09h15</span></li>
+                                    {MATRIZ_MASS_SCHEDULE.map((item) => (
+                                        <li key={`mobile-${item.label}`} className="md:hidden">
+                                            {item.shortLabel}: {item.time}
+                                        </li>
+                                    ))}
+                                    {MATRIZ_MASS_SCHEDULE.map((item) => (
+                                        <li key={item.label} className="hidden w-full justify-between gap-8 md:flex">
+                                            <span>{item.label}:</span>
+                                            <span className="font-medium text-gray-900">{item.time}</span>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -90,9 +96,9 @@ export async function Hero() {
                                     Campinas - SP
                                 </p>
                                 <p className="hidden text-sm leading-relaxed text-gray-600 md:mb-3 md:block">
-                                    R. Eudes Batista Ribeiro, S/N<br />
-                                    Jardim Santa Rosa<br />
-                                    Campinas – SP, 13058-712
+                                    {PARISH_CONTACT.addressLine1}<br />
+                                    {PARISH_CONTACT.addressLine2}<br />
+                                    {PARISH_CONTACT.cityLine}
                                 </p>
                                 <Link href="/contato" className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary transition-colors hover:underline md:text-sm">
                                     <span className="md:hidden">Mapa</span>
@@ -111,16 +117,16 @@ export async function Hero() {
                             <div className="min-w-0">
                                 <h3 className="mb-2 text-sm font-bold text-primary md:text-xl">Secretaria</h3>
                                 <p className="mb-1 text-[10px] leading-4 text-gray-600 md:hidden">
-                                    Seg-Sex: 08h-12h<br />
+                                    {SECRETARY_SCHEDULE.weekdayShortLabel}: 08h-12h<br />
                                     13h-17h<br />
-                                    Sab: 08h-12h
+                                    {SECRETARY_SCHEDULE.saturdayShortLabel}: 08h-12h
                                 </p>
                                 <p className="hidden text-sm text-gray-600 md:mb-1 md:block">
-                                    <strong>Seg-Sex:</strong> 08h-12h, 13h-17h<br />
-                                    <strong>Sábado:</strong> 08h-12h
+                                    <strong>{SECRETARY_SCHEDULE.weekdayLabel}:</strong> 08h-12h, 13h-17h<br />
+                                    <strong>{SECRETARY_SCHEDULE.saturdayLabel}:</strong> 08h-12h
                                 </p>
                                 <p className="mt-2 flex items-center justify-center gap-2 text-[10px] font-medium text-gray-900 md:justify-start md:text-sm">
-                                    (19) 3261-2099
+                                    {PARISH_CONTACT.phone}
                                 </p>
                             </div>
                         </div>

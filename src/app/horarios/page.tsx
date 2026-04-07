@@ -1,12 +1,13 @@
 
 import { PageLayout } from "@/components/ui/PageLayout";
 import { Clock, Calendar, Info } from "lucide-react";
+import { MATRIZ_MASS_SCHEDULE, PARISH_CONTACT, SECRETARY_SCHEDULE } from "@/lib/parish-info";
 
 export default function SchedulePage() {
     return (
         <PageLayout
             title="Horários"
-            subtitle="Fique atento aos horários de nossas celebrações e atendimentos em Janeiro/2026"
+            subtitle="Fique atento aos horários de nossas celebrações e atendimentos"
             breadcrumbs={[{ label: "Horários", href: "/horarios" }]}
         >
             <div className="space-y-12">
@@ -21,29 +22,25 @@ export default function SchedulePage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-white p-6 rounded-sm shadow-sm border-t-4 border-primary hover:shadow-md transition-shadow">
-                            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block mb-1">Quarta-feira</span>
-                            <span className="text-3xl font-bold text-primary block mb-3">15h00</span>
-                            <p className="text-sm text-gray-600">Santa Missa com Novena do Perpétuo Socorro</p>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-sm shadow-sm border-t-4 border-primary hover:shadow-md transition-shadow">
-                            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block mb-1">Quinta-feira</span>
-                            <span className="text-3xl font-bold text-primary block mb-3">20h00</span>
-                            <p className="text-sm text-gray-600">Santa Missa com Novena de N. Sra. Desatadora dos Nós e Adoração</p>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-sm shadow-sm border-t-4 border-primary hover:shadow-md transition-shadow">
-                            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block mb-1">Sábado</span>
-                            <span className="text-3xl font-bold text-primary block mb-3">20h00</span>
-                            <p className="text-sm text-gray-600">Santa Missa Dominical (Vigília)</p>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-sm shadow-sm border-t-4 border-secondary hover:shadow-md transition-shadow bg-accent/20">
-                            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block mb-1">Domingo</span>
-                            <span className="text-3xl font-bold text-secondary block mb-3">09h15</span>
-                            <p className="text-sm text-gray-600">Santa Missa Dominical</p>
-                        </div>
+                        {MATRIZ_MASS_SCHEDULE.map((item) => (
+                            <div
+                                key={item.label}
+                                className={`bg-white p-6 rounded-sm shadow-sm border-t-4 hover:shadow-md transition-shadow ${
+                                    item.label === "Domingo" ? "border-secondary bg-accent/20" : "border-primary"
+                                }`}
+                            >
+                                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block mb-1">{item.label}</span>
+                                <span className={`text-3xl font-bold block mb-3 ${item.label === "Domingo" ? "text-secondary" : "text-primary"}`}>
+                                    {item.time}
+                                </span>
+                                <p className="text-sm text-gray-600">
+                                    {item.label === "Quarta-feira" && "Santa Missa com Novena do Perpétuo Socorro"}
+                                    {item.label === "Quinta-feira" && "Santa Missa com Novena de N. Sra. Desatadora dos Nós e Adoração"}
+                                    {item.label === "Sábado" && "Santa Missa Dominical (Vigília)"}
+                                    {item.label === "Domingo" && "Santa Missa Dominical"}
+                                </p>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
@@ -56,7 +53,7 @@ export default function SchedulePage() {
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-primary">Atendimentos com Pe. Leandro</h2>
-                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Janeiro/2026</span>
+                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Agendamento prévio</span>
                             </div>
                         </div>
                         <div className="bg-accent p-6 rounded-sm border border-secondary/20">
@@ -79,7 +76,7 @@ export default function SchedulePage() {
                             </ul>
                             <div className="mt-4 bg-white/50 p-3 rounded-sm text-center">
                                 <p className="text-sm font-bold text-primary">Agendamento Prévio Necessário</p>
-                                <p className="text-sm text-gray-600">Ligue ou mande mensagem: (19) 3261-2099</p>
+                                <p className="text-sm text-gray-600">Ligue ou mande mensagem: {PARISH_CONTACT.phone}</p>
                             </div>
                         </div>
                     </section>
@@ -95,16 +92,16 @@ export default function SchedulePage() {
                         <div className="bg-white border border-gray-200 p-6 rounded-sm">
                             <ul className="space-y-4">
                                 <li className="flex justify-between pb-2">
-                                    <span className="font-bold text-gray-600">Segunda a Sexta</span>
+                                    <span className="font-bold text-gray-600">{SECRETARY_SCHEDULE.weekdayLabel}</span>
                                     <div className="text-right">
-                                        <span className="block text-primary font-bold">08h00 - 12h00</span>
-                                        <span className="block text-primary font-bold">13h00 - 17h00</span>
+                                        <span className="block text-primary font-bold">{SECRETARY_SCHEDULE.morning}</span>
+                                        <span className="block text-primary font-bold">{SECRETARY_SCHEDULE.afternoon}</span>
                                     </div>
                                 </li>
                                 <li className="flex justify-between border-t border-gray-100 pt-2">
-                                    <span className="font-bold text-gray-600">Sábado</span>
+                                    <span className="font-bold text-gray-600">{SECRETARY_SCHEDULE.saturdayLabel}</span>
                                     <div className="text-right">
-                                        <span className="block text-primary font-bold">08h00 - 12h00</span>
+                                        <span className="block text-primary font-bold">{SECRETARY_SCHEDULE.saturdayHours}</span>
                                     </div>
                                 </li>
                             </ul>
