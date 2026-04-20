@@ -13,7 +13,8 @@ import {
     LogOut,
     ImageIcon,
     UserCog,
-    ChurchIcon
+    ChurchIcon,
+    Link2
 } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { useFormStatus } from "react-dom";
@@ -30,6 +31,7 @@ const menuItems = [
     { name: "Galeria", href: "/admin/galeria", icon: ImageIcon },
     { name: "Formulários (Recebidos)", href: "/admin/formularios", icon: Inbox },
     { name: "Gerenciar Formulários", href: "/admin/formularios/gerenciar", icon: FileText },
+    { name: "Bio / Links", href: "/admin/bio", icon: Link2 },
     { name: "Usuários", href: "/admin/usuarios", icon: UserCog },
 ];
 
@@ -53,8 +55,8 @@ export function AdminSidebar() {
                             key={item.name}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? "bg-blue-500/30 text-white font-semibold shadow-sm"
-                                    : "text-slate-200 hover:bg-white/10 hover:text-white"
+                                ? "bg-blue-500/30 text-white font-semibold shadow-sm"
+                                : "text-slate-200 hover:bg-white/10 hover:text-white"
                                 }`}
                         >
                             <item.icon size={18} />

@@ -1512,3 +1512,180 @@ export async function deleteMassSchedule(id: number) {
     revalidatePath("/agenda");
     revalidatePath("/");
 }
+
+// --- BIO LINKS ---
+
+export async function getBioLinks() {
+    const { data, error } = await supabaseAdmin
+        .from("bio_links")
+        .select("*")
+        .order("display_order", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching bio links:", error);
+        return [];
+    }
+    return data;
+}
+
+export async function getBioLinksPublic() {
+    const { data, error } = await supabaseAdmin
+        .from("bio_links")
+        .select("*")
+        .eq("active", true)
+        .order("display_order", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching public bio links:", error);
+        return [];
+    }
+    return data;
+}
+
+export async function createBioLink(formData: FormData) {
+    const title = formData.get("title") as string;
+    const url = formData.get("url") as string;
+    const icon = (formData.get("icon") as string) || "link";
+    const highlight = formData.get("highlight") === "true";
+
+    // Auto-set order to be last
+    const { data: lastLink } = await supabaseAdmin
+        .from("bio_links")
+        .select("display_order")
+        .order("display_order", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    const display_order = (lastLink?.display_order ?? -1) + 1;
+
+    const { error } = await supabaseAdmin
+        .from("bio_links")
+        .insert([{ title, url, icon, display_order, highlight }]);
+
+    if (error) console.error("Error creating bio link:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function updateBioLink(id: number, formData: FormData) {
+    const title = formData.get("title") as string;
+    const url = formData.get("url") as string;
+    const icon = (formData.get("icon") as string) || "link";
+    const highlight = formData.get("highlight") === "true";
+
+    const { error } = await supabaseAdmin
+        .from("bio_links")
+        .update({ title, url, icon, highlight })
+        .eq("id", id);
+
+    if (error) console.error("Error updating bio link:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function deleteBioLink(id: number) {
+    const { error } = await supabaseAdmin.from("bio_links").delete().eq("id", id);
+    if (error) console.error("Error deleting bio link:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function reorderBioLinks(orderedIds: number[]) {
+    const updates = orderedIds.map((id, index) =>
+        supabaseAdmin
+            .from("bio_links")
+            .update({ display_order: index })
+            .eq("id", id)
+    );
+
+    const results = await Promise.all(updates);
+    const hasError = results.some(r => r.error);
+    if (hasError) console.error("Error reordering bio links");
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function toggleBioLinkActive(id: number, active: boolean) {
+    const { error } = await supabaseAdmin
+        .from("bio_links")
+        .update({ active })
+        .eq("id", id);
+
+    if (error) console.error("Error toggling bio link active:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function toggleBioLinkHighlight(id: number, highlight: boolean) {
+    const { error } = await supabaseAdmin
+        .from("bio_links")
+        .update({ highlight })
+        .eq("id", id);
+
+    if (error) console.error("Error toggling bio link highlight:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+// --- BIO SETTINGS ---
+
+export async function getBioSettings() {
+    const { data, error } = await supabaseAdmin
+        .from("bio_settings")
+        .select("*")
+        .eq("id", 1)
+        .single();
+
+    if (error) {
+        console.error("Error fetching bio settings:", error);
+        return { id: 1, logo_url: null, title: "Paróquia São Pio X", subtitle: "", instagram_handle: "" };
+    }
+    return data;
+}
+
+export async function updateBioSettings(formData: FormData) {
+    const title = formData.get("title") as string;
+    const subtitle = formData.get("subtitle") as string;
+    const logo_url = formData.get("logo_url") as string;
+    const instagram_handle = formData.get("instagram_handle") as string || "";
+
+    const { error } = await supabaseAdmin
+        .from("bio_settings")
+        .update({ title, subtitle, logo_url, instagram_handle })
+        .eq("id", 1);
+
+    if (error) console.error("Error updating bio settings:", error);
+    revalidatePath("/admin/bio");
+    revalidatePath("/bio");
+}
+
+export async function uploadBioLogo(formData: FormData) {
+    const file = formData.get("file") as File;
+    if (!file || file.size === 0) {
+        return { ok: false, error: "Nenhum arquivo enviado." };
+    }
+
+    try {
+        const buffer = await file.arrayBuffer();
+        const ext = file.name.split(".").pop() || "png";
+        const key = `bio/logo-${Date.now()}.${ext}`;
+        const publicUrl = await uploadBufferToR2({
+            key,
+            body: buffer,
+            contentType: file.type || "image/png",
+        });
+
+        // Also save to bio_settings
+        await supabaseAdmin
+            .from("bio_settings")
+            .update({ logo_url: publicUrl })
+            .eq("id", 1);
+
+        revalidatePath("/admin/bio");
+        revalidatePath("/bio");
+        return { ok: true, url: publicUrl };
+    } catch (err) {
+        console.error("Error uploading bio logo:", err);
+        return { ok: false, error: "Erro ao enviar logo." };
+    }
+}
