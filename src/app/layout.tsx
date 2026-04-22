@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { MaintenanceOverlay } from "@/components/home/MaintenanceOverlay";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,8 +33,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
-        {children}
-      </body>
+        <MaintenanceOverlay>
+          {children}
+        </MaintenanceOverlay>
+      body>
     </html>
   );
 }

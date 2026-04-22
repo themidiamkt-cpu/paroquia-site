@@ -27,6 +27,15 @@ interface BioLink {
     highlight: boolean;
 }
 
+function formatUrl(url: string) {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+        return url;
+    }
+    // Handle common cases like wa.me, instagram.com without prefix
+    return `https://${url}`;
+}
+
 interface BioSettingsData {
     logo_url: string | null;
     title: string;
@@ -101,7 +110,7 @@ export default async function BioPage() {
                         return (
                             <a
                                 key={link.id}
-                                href={link.url}
+                                href={formatUrl(link.url)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`group relative flex items-center gap-4 w-full px-5 py-4 rounded-2xl transition-all duration-300 ${isHighlight

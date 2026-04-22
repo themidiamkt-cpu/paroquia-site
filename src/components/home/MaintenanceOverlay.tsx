@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Lock, Heart, Church } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function MaintenanceOverlay({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [password, setPassword] = useState("");
     const [error, setError] = useState(false);
@@ -31,7 +33,10 @@ export function MaintenanceOverlay({ children }: { children: React.ReactNode }) 
 
     if (!mounted) return null;
 
-    if (isAuthorized) {
+    // Exclude admin and api routes from maintenance mode
+    const isExcluded = pathname?.startsWith("/admin") || pathname?.startsWith("/api") || pathname === "/login";
+
+    if (isAuthorized || isExcluded) {
         return <>{children}</>;
     }
 

@@ -12,31 +12,27 @@ import { Location } from "@/components/home/Location";
 import { ChapelReform } from "@/components/home/ChapelReform";
 import { Calendar } from "@/components/home/Calendar";
 import { Donations } from "@/components/home/Donations";
-import { MaintenanceOverlay } from "@/components/home/MaintenanceOverlay";
-
 export default function Home() {
   return (
-    <MaintenanceOverlay>
-      <div className="min-h-screen flex flex-col font-sans">
-        <Header />
+    <div className="min-h-screen flex flex-col font-sans">
+      <Header />
 
-        <main className="flex-grow">
-          <Hero />
-          {/* QuickAccess removed - integrated into Hero */}
-          <Notices />
-          <ChapelReform />
-          <OnlineServices />
-          <RecentGallery />
-          <PriestWord />
-          <Calendar />
-          <FeaturedPastorals />
-          <Donations />
-          <InstagramFeed />
-          <Location />
-        </main>
+      <main className="flex-grow">
+        <Hero />
+        {/* QuickAccess removed - integrated into Hero */}
+        <Notices />
+        <ChapelReform />
+        <OnlineServices />
+        <RecentGallery />
+        <PriestWord />
+        <Calendar />
+        <FeaturedPastorals />
+        <Donations />
+        <InstagramFeed />
+        <Location />
+      </main>
 
-        <Footer />
-      </div>
-    </MaintenanceOverlay>
+      <Footer />
+    </div>
   );
 }
