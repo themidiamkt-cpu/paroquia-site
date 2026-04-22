@@ -36,7 +36,7 @@ export default function RootLayout({
         <MaintenanceOverlay>
           {children}
         </MaintenanceOverlay>
-      body>
+      </body>
     </html>
   );
 }
