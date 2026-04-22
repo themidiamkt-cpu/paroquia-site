@@ -33,8 +33,8 @@ export function MaintenanceOverlay({ children }: { children: React.ReactNode }) 
 
     if (!mounted) return null;
 
-    // Exclude admin and api routes from maintenance mode
-    const isExcluded = pathname?.startsWith("/admin") || pathname?.startsWith("/api") || pathname === "/login";
+    // Exclude admin, api, login and bio routes from maintenance mode
+    const isExcluded = pathname?.startsWith("/admin") || pathname?.startsWith("/api") || pathname === "/login" || pathname === "/bio";
 
     if (isAuthorized || isExcluded) {
         return <>{children}</>;
