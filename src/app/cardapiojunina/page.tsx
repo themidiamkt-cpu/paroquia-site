@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function CardapioJuninaPage() {
     return (
-        <main className="min-h-screen bg-[#0a2f55] px-1 py-1 sm:px-3 sm:py-3">
+        <main className="bg-[#0a2f55] p-0 sm:min-h-screen sm:px-3 sm:py-3">
             <div className="mx-auto w-full max-w-[842px]">
                 <Image
                     src="/cardapiojunina-original.png"
@@ -16,7 +16,7 @@ export default function CardapioJuninaPage() {
                     width={842}
                     height={1190}
                     priority
-                    className="block h-auto w-full"
+                    className="block h-auto w-full align-top"
                 />
             </div>
         </main>
