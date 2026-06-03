@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import {
@@ -114,6 +115,14 @@ export default function FestaJuninaPage() {
                         <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
                             Seja um patrocinador e fortaleça a comunidade local
                         </p>
+                        <div className="mt-8">
+                            <Link
+                                href="/cardapiojunina"
+                                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 py-3 font-bold text-white backdrop-blur transition hover:bg-white/20"
+                            >
+                                Ver cardápio da festa
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
