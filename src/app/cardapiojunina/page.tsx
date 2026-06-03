@@ -1,16 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import {
-    ArrowRight,
-    Candy,
-    CupSoda,
-    Gamepad2,
-    Sparkles,
-    Soup,
-    UtensilsCrossed,
-} from "lucide-react";
-import { Header } from "@/components/ui/header";
-import { Footer } from "@/components/ui/footer";
 
 type MenuItem = {
     name: string;
@@ -19,16 +7,12 @@ type MenuItem = {
 
 type MenuSection = {
     title: string;
-    icon: typeof UtensilsCrossed;
-    accent: string;
     items: MenuItem[];
 };
 
 const menuSections: MenuSection[] = [
     {
         title: "Salgados e Pratos",
-        icon: UtensilsCrossed,
-        accent: "from-amber-300 to-orange-500",
         items: [
             { name: "Mini Pizza Salgada", price: 14 },
             { name: "Cachorro Quente", price: 18 },
@@ -44,8 +28,6 @@ const menuSections: MenuSection[] = [
     },
     {
         title: "Doces e Sobremesas",
-        icon: Candy,
-        accent: "from-red-400 to-orange-500",
         items: [
             { name: "Mini Pizza Doce", price: 16 },
             { name: "Curau", price: 8 },
@@ -58,8 +40,6 @@ const menuSections: MenuSection[] = [
     },
     {
         title: "Bebidas",
-        icon: CupSoda,
-        accent: "from-yellow-300 to-amber-500",
         items: [
             { name: "Chop Pilsen", price: 12 },
             { name: "Chop de Vinho", price: 13 },
@@ -74,9 +54,7 @@ const menuSections: MenuSection[] = [
         ],
     },
     {
-        title: "Diversão e Brincadeiras",
-        icon: Gamepad2,
-        accent: "from-orange-300 to-red-500",
+        title: "Brincadeiras",
         items: [
             { name: "Pesca", price: 7 },
             { name: "Cama Elástica", price: 7 },
@@ -84,162 +62,167 @@ const menuSections: MenuSection[] = [
         ],
     },
     {
-        title: "Destaques da Noite",
-        icon: Soup,
-        accent: "from-red-300 to-yellow-500",
+        title: "Especiais",
         items: [
-            { name: "Mini Pizza Doce", price: 16 },
-            { name: "Lanche de Pernil", price: 18 },
-            { name: "Caldos", price: 15 },
-            { name: "Quentão/Vinho Quente", price: 7 },
+            { name: "Picolé Zero Açúcar", price: 10 },
+            { name: "Maçã do Amor", price: 8 },
         ],
     },
 ];
 
-function formatPrice(value: number) {
-    return new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-        minimumFractionDigits: 2,
-    }).format(value);
-}
-
 export const metadata: Metadata = {
     title: "Cardápio Junino | Paróquia São Pio X",
-    description: "Confira o cardápio da Festa Junina da Paróquia São Pio X com comidas, bebidas e brincadeiras.",
+    description: "Tabela de preços da Festa Junina da Paróquia São Pio X.",
 };
 
+function formatPrice(value: number) {
+    return `R$${value},00`;
+}
+
+function Lantern({ className }: { className: string }) {
+    return (
+        <div className={`pointer-events-none absolute ${className}`}>
+            <div className="relative h-24 w-12 sm:h-32 sm:w-16">
+                <div className="absolute left-1/2 top-0 h-6 w-px -translate-x-1/2 bg-amber-100/70" />
+                <div className="absolute top-4 h-14 w-full rounded-full bg-gradient-to-b from-amber-300 via-orange-500 to-red-500 shadow-[0_0_30px_rgba(255,190,92,0.35)]">
+                    <div className="absolute inset-y-1 left-1/2 w-px -translate-x-1/2 bg-amber-100/70" />
+                    <div className="absolute inset-y-1 left-3 w-px bg-amber-100/40" />
+                    <div className="absolute inset-y-1 right-3 w-px bg-amber-100/40" />
+                    <div className="absolute inset-x-2 top-1 h-3 rounded-full bg-amber-200/70" />
+                </div>
+                <div className="absolute bottom-1 left-1/2 h-5 w-px -translate-x-1/2 bg-amber-100/70" />
+                <div className="absolute bottom-0 left-1/2 h-4 w-4 -translate-x-1/2 rounded-b-full border-x border-b border-amber-100/60" />
+            </div>
+        </div>
+    );
+}
+
 function BuntingRow() {
-    const colors = ["bg-red-500", "bg-amber-300", "bg-orange-500", "bg-yellow-300"];
+    const colors = [
+        "bg-red-500",
+        "bg-yellow-300",
+        "bg-orange-500",
+        "bg-amber-200",
+    ];
 
     return (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-center gap-1 overflow-hidden px-4 pt-3 sm:gap-2 sm:px-8">
-            {Array.from({ length: 18 }).map((_, index) => (
-                <div key={index} className="flex flex-col items-center">
-                    <div className="h-3 w-px bg-white/60 sm:h-4" />
-                    <div
-                        className={`h-0 w-0 border-l-[14px] border-r-[14px] border-t-[24px] border-l-transparent border-r-transparent ${colors[index % colors.length]} sm:border-l-[20px] sm:border-r-[20px] sm:border-t-[34px]`}
-                    />
-                </div>
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 overflow-hidden pt-2 sm:pt-4">
+            <div className="absolute left-[-5%] right-[-5%] top-0 h-1 rotate-[2deg] bg-amber-100/90" />
+            <div className="absolute left-[-5%] right-[-5%] top-5 h-1 -rotate-[2deg] bg-amber-100/85 sm:top-7" />
+            <div className="flex justify-center gap-1 px-2 pt-4 sm:gap-2 sm:px-6 sm:pt-6">
+                {Array.from({ length: 22 }).map((_, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                        <div className="h-2 w-px bg-amber-100/70 sm:h-3" />
+                        <div
+                            className={`h-0 w-0 border-l-[11px] border-r-[11px] border-t-[20px] border-l-transparent border-r-transparent ${colors[index % colors.length]} sm:border-l-[16px] sm:border-r-[16px] sm:border-t-[28px]`}
+                        />
+                    </div>
+                ))}
+            </div>
+            {Array.from({ length: 9 }).map((_, index) => (
+                <div
+                    key={`light-${index}`}
+                    className="absolute top-4 h-3 w-3 rounded-full bg-amber-100 shadow-[0_0_18px_rgba(255,245,194,0.95)] sm:top-6 sm:h-4 sm:w-4"
+                    style={{ left: `${6 + index * 11}%` }}
+                />
             ))}
         </div>
     );
 }
 
-export default function CardapioJuninaPage() {
+function MenuLine({
+    item,
+    isRed,
+}: {
+    item: MenuItem;
+    isRed: boolean;
+}) {
+    const textClass = isRed ? "text-[#ff432f]" : "text-[#ffbf47]";
+
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-slate-950">
-            <Header />
+        <li className="flex items-end gap-2 sm:gap-3">
+            <span
+                className={`max-w-[68%] text-left text-[1.15rem] font-black uppercase leading-none tracking-tight drop-shadow-[2px_2px_0_rgba(0,0,0,0.32)] sm:max-w-none sm:text-[2rem] ${textClass}`}
+            >
+                {item.name}
+            </span>
+            <span
+                className={`mb-[0.18em] h-[0.45em] flex-1 overflow-hidden text-[0.85rem] leading-none sm:text-[1.15rem] ${textClass}`}
+                aria-hidden="true"
+            >
+                ................................................................................................
+            </span>
+            <span
+                className={`whitespace-nowrap text-[1.15rem] font-black leading-none tracking-tight drop-shadow-[2px_2px_0_rgba(0,0,0,0.32)] sm:text-[2rem] ${textClass}`}
+            >
+                {formatPrice(item.price)}
+            </span>
+        </li>
+    );
+}
 
-            <main className="flex-grow">
-                <section
-                    className="relative overflow-hidden"
-                    style={{
-                        backgroundImage:
-                            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.16) 0, transparent 2px), radial-gradient(circle at 80% 15%, rgba(255,255,255,0.14) 0, transparent 2px), radial-gradient(circle at 15% 70%, rgba(255,255,255,0.12) 0, transparent 2px), linear-gradient(180deg, #08294a 0%, #0d3b66 55%, #09213c 100%)",
-                    }}
-                >
-                    <BuntingRow />
+export default function CardapioJuninaPage() {
+    const sectionsForColumns = [
+        menuSections.slice(0, 2),
+        menuSections.slice(2, 4),
+        menuSections.slice(4),
+    ];
 
-                    <div className="container mx-auto px-4 pt-28 pb-16 sm:pt-32 sm:pb-20">
-                        <div className="mx-auto max-w-4xl text-center text-white">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
-                                <Sparkles size={16} className="text-yellow-300" />
-                                Festa Junina da Paróquia São Pio X
-                            </div>
+    return (
+        <main
+            className="relative min-h-screen overflow-hidden bg-[#0a2f52] font-sans"
+            style={{
+                backgroundImage: `
+                    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.22) 0, transparent 2px),
+                    radial-gradient(circle at 75% 26%, rgba(255,255,255,0.18) 0, transparent 2px),
+                    radial-gradient(circle at 38% 70%, rgba(255,255,255,0.15) 0, transparent 2px),
+                    radial-gradient(circle at 86% 76%, rgba(255,255,255,0.12) 0, transparent 2px),
+                    linear-gradient(180deg, #0d4373 0%, #082f52 100%)
+                `,
+            }}
+        >
+            <BuntingRow />
 
-                            <h1 className="mt-6 text-4xl font-black uppercase tracking-tight text-yellow-300 drop-shadow md:text-6xl">
-                                Cardápio Junino
-                            </h1>
+            <Lantern className="left-2 top-32 rotate-[-10deg] sm:left-8 sm:top-36" />
+            <Lantern className="right-2 top-40 rotate-[10deg] sm:right-8 sm:top-40" />
+            <Lantern className="left-5 top-[42%] rotate-[8deg] sm:left-12" />
+            <Lantern className="right-4 top-[58%] rotate-[-8deg] sm:right-10" />
+            <Lantern className="left-3 bottom-20 rotate-[-6deg] sm:left-10" />
+            <Lantern className="right-3 bottom-12 rotate-[9deg] sm:right-8" />
 
-                            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg">
-                                Todos os valores da nossa festa em uma página fácil de consultar no celular.
-                                Comidas, bebidas, doces e brincadeiras para a família toda.
-                            </p>
+            <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-24 sm:px-8 sm:pb-16 sm:pt-28">
+                <div className="mx-auto max-w-6xl rounded-[2rem] border border-white/8 bg-[rgba(6,27,50,0.28)] px-5 py-7 shadow-[0_30px_80px_rgba(0,0,0,0.3)] backdrop-blur-[2px] sm:px-8 sm:py-10 lg:px-12">
+                    <header className="mb-8 text-center sm:mb-10">
+                        <h1 className="text-[2.8rem] font-black uppercase leading-none tracking-tight text-[#ffbf47] drop-shadow-[4px_4px_0_rgba(0,0,0,0.35)] sm:text-[4.5rem] lg:text-[5.5rem]">
+                            Tabela de Preços
+                        </h1>
+                    </header>
 
-                            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                                <Link
-                                    href="/festa-junina"
-                                    className="inline-flex items-center gap-2 rounded-full bg-yellow-300 px-6 py-3 font-bold text-slate-900 transition hover:bg-yellow-200"
-                                >
-                                    Saiba mais sobre a festa
-                                    <ArrowRight size={18} />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="bg-[#fff7e8] py-14 sm:py-16">
-                    <div className="container mx-auto px-4">
-                        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <span className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">
-                                    Tabela de preços
-                                </span>
-                                <h2 className="mt-2 text-3xl font-black text-slate-900 sm:text-4xl">
-                                    Confira tudo por categoria
-                                </h2>
-                            </div>
-
-                            <p className="max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
-                                Valores organizados para facilitar a consulta durante a festa.
-                                Em caso de atualização no evento, a equipe da barraca informará no local.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                            {menuSections.map((section) => {
-                                const Icon = section.icon;
-
-                                return (
-                                    <article
-                                        key={section.title}
-                                        className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-[0_16px_45px_rgba(15,23,42,0.08)]"
-                                    >
-                                        <div className={`bg-gradient-to-r ${section.accent} px-6 py-5 text-slate-950`}>
-                                            <div className="flex items-center gap-3">
-                                                <div className="rounded-2xl bg-white/70 p-2.5">
-                                                    <Icon size={22} />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl font-black uppercase tracking-wide">
-                                                        {section.title}
-                                                    </h3>
-                                                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-800/75">
-                                                        Festa Junina
-                                                    </p>
-                                                </div>
-                                            </div>
+                    <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+                        {sectionsForColumns.map((columnSections, columnIndex) => (
+                            <div key={`column-${columnIndex}`} className="space-y-6">
+                                {columnSections.map((section, sectionIndex) => (
+                                    <section key={section.title}>
+                                        <div className="mb-3 inline-flex rounded-full border border-amber-200/30 bg-amber-300/12 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.24em] text-amber-200 sm:text-sm">
+                                            {section.title}
                                         </div>
 
-                                        <div className="px-5 py-4 sm:px-6 sm:py-5">
-                                            <ul className="space-y-3">
-                                                {section.items.map((item) => (
-                                                    <li
-                                                        key={`${section.title}-${item.name}`}
-                                                        className="flex items-end gap-3 text-sm sm:text-base"
-                                                    >
-                                                        <span className="font-bold uppercase tracking-wide text-slate-900">
-                                                            {item.name}
-                                                        </span>
-                                                        <span className="mb-1 h-px flex-1 border-b border-dotted border-orange-300" />
-                                                        <span className="whitespace-nowrap text-lg font-black text-red-600">
-                                                            {formatPrice(item.price)}
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
+                                        <ul className="space-y-3 sm:space-y-4">
+                                            {section.items.map((item, itemIndex) => (
+                                                <MenuLine
+                                                    key={`${section.title}-${item.name}`}
+                                                    item={item}
+                                                    isRed={(itemIndex + sectionIndex + columnIndex) % 2 === 1}
+                                                />
+                                            ))}
+                                        </ul>
+                                    </section>
+                                ))}
+                            </div>
+                        ))}
                     </div>
-                </section>
-            </main>
-
-            <Footer />
-        </div>
+                </div>
+            </div>
+        </main>
     );
 }
